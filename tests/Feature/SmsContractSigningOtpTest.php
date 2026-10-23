@@ -4,10 +4,12 @@ namespace Tests\Feature;
 
 use App\Contracts\Auth\OtpNotifierInterface;
 use App\Exceptions\Auth\OtpNotificationException;
+use App\Models\ContractView;
 use App\Models\GhorfeOnlineList;
 use App\Models\User;
 use App\Services\Sms\BulkSmsRecipientFilterService;
 use App\Services\Sms\SmsContractOtpService;
+use App\Services\SmsSettings\SmsSignatureRecord;
 use App\Services\SmsSettings\SmsCmsContentService;
 use App\Services\V1\Auth\NumericOtpGenerator;
 use Illuminate\Database\Schema\Blueprint;
@@ -18,6 +20,9 @@ use Tests\TestCase;
 
 /**
  * The SMS usage contract + telecom rules are signed with a 6-digit OTP sent to the signer's OWN phone.
+ *
+ * Runs on in-memory SQLite only (the default connection is switched in setUp before any query).
+ * The business starts unsigned: status off and no signing history line.
  */
 class SmsContractSigningOtpTest extends TestCase
 {
@@ -44,7 +49,6 @@ class SmsContractSigningOtpTest extends TestCase
             $t->string('phone')->nullable();
             $t->string('password')->nullable();
             $t->string('level')->default('user');
-            $t->string('access_tier')->default('silver');
             $t->boolean('active')->default(true);
             $t->string('token')->nullable();
             $t->string('api_token')->nullable();
@@ -52,14 +56,14 @@ class SmsContractSigningOtpTest extends TestCase
             $t->softDeletes();
             $t->timestamps();
         });
+        // Only the columns the signing flow reads or writes. The signing state is NOT on this table:
+        // it lives in the central history line (see SmsSignatureRecord).
         Schema::create('ghorfe_online_lists', function (Blueprint $t) {
             $t->id();
-            $t->boolean('sms_contract_accepted')->default(false);
-            $t->timestamp('sms_contract_accepted_at')->nullable();
-            $t->string('sms_contract_signature_name')->nullable();
-            $t->unsignedInteger('sms_contract_accepted_by')->nullable();
             $t->string('title');
-            $t->boolean('status')->default(true);
+            $t->string('en_title')->nullable();
+            $t->string('slug')->nullable();
+            $t->boolean('status')->default(false);
             $t->softDeletes();
             $t->timestamps();
         });
@@ -75,10 +79,6 @@ class SmsContractSigningOtpTest extends TestCase
             $t->text('value')->nullable();
             $t->string('key')->nullable();
             $t->nullableMorphs('settingable');
-            $t->string('number')->nullable();
-            $t->string('type')->nullable();
-            $t->string('sms_panel')->nullable();
-            $t->integer('status')->default(1);
             $t->timestamps();
         });
         foreach (['roles', 'permissions'] as $table) {
@@ -93,28 +93,88 @@ class SmsContractSigningOtpTest extends TestCase
             $t->unsignedInteger('user_id');
             $t->string('user_type');
         });
-
-        if (!Schema::hasTable('sms_logs')) {
-            Schema::create('sms_logs', function (Blueprint $t) {
-                $t->id();
-                $t->unsignedInteger('ghorfe_online_list_id')->nullable();
-                $t->unsignedInteger('user_id')->nullable();
-                $t->string('type', 50)->nullable();
-                $t->string('sender_number', 50)->nullable();
-                $t->string('status', 50)->nullable();
-                $t->string('tracking_id', 100)->nullable();
-                $t->text('message')->nullable();
-                $t->text('response')->nullable();
-                $t->timestamps();
-            });
-        }
-        Schema::table('ghorfe_online_lists', function (Blueprint $t) {
-            $t->string('sms_contract_signed_phone', 20)->nullable();
-            $t->string('sms_contract_text_hash', 64)->nullable();
-            $t->timestamp('sms_contract_otp_verified_at')->nullable();
+        // The SMS log: the OTP rows (type contract_otp) and the audit rows of the sends.
+        Schema::create('sms_logs', function (Blueprint $t) {
+            $t->id();
+            $t->string('phone', 20)->nullable();
+            $t->string('type', 30)->nullable();
+            $t->unsignedBigInteger('ghorfe_online_list_id')->nullable();
+            $t->unsignedBigInteger('user_id')->nullable();
+            $t->unsignedBigInteger('created_by')->nullable();
+            $t->string('sender_number', 50)->nullable();
+            $t->unsignedBigInteger('sms_message_id')->nullable();
+            $t->unsignedBigInteger('sms_campaign_id')->nullable();
+            $t->string('status', 50)->nullable();
+            $t->string('tracking_id', 100)->nullable();
+            $t->text('message')->nullable();
+            $t->text('response')->nullable();
+            $t->timestamps();
+        });
+        // The central signing record: one history line on the business, and the snapshot of the signed text.
+        Schema::create('histories', function (Blueprint $t) {
+            $t->increments('id');
+            $t->string('historiable_type');
+            $t->unsignedBigInteger('historiable_id');
+            $t->unsignedInteger('user_id')->nullable();
+            $t->unsignedInteger('callcenter_id')->nullable();
+            $t->integer('status');
+            $t->unsignedInteger('reason_id')->nullable();
+            $t->text('description')->nullable();
+            $t->timestamps();
+        });
+        Schema::create('contract_views', function (Blueprint $t) {
+            $t->increments('id');
+            $t->longText('contract');
+            $t->string('contract_type');
+            $t->unsignedBigInteger('contract_id');
+            $t->timestamps();
+        });
+        // Read by the sign page and by the signed-text builder (no usage rows in these tests).
+        Schema::create('contracts', function (Blueprint $t) {
+            $t->increments('id');
+            $t->unsignedInteger('contract_folder_id')->nullable();
+            $t->unsignedTinyInteger('type')->nullable();
+            $t->string('title')->nullable();
+            $t->longText('content')->nullable();
+            $t->string('file')->nullable();
+            $t->integer('status')->default(1);
+            $t->softDeletes();
+            $t->timestamps();
+        });
+        Schema::create('contract_usages', function (Blueprint $t) {
+            $t->increments('id');
+            $t->unsignedInteger('contract_id');
+            $t->string('usable_type')->nullable();
+            $t->unsignedBigInteger('usable_id')->nullable();
+            $t->string('location');
+            $t->string('contract_number')->nullable();
+            $t->date('contract_date')->nullable();
+            $t->boolean('is_active')->default(true);
+            $t->unsignedInteger('position')->default(0);
+            $t->softDeletes();
+            $t->timestamps();
+        });
+        // Spatie media (the sign page lists the client files of the business).
+        Schema::create('media', function (Blueprint $t) {
+            $t->char('id', 36)->primary();
+            $t->morphs('model');
+            $t->char('uuid', 36)->nullable()->unique();
+            $t->string('collection_name');
+            $t->string('name');
+            $t->string('file_name');
+            $t->string('mime_type')->nullable();
+            $t->string('disk');
+            $t->string('conversions_disk')->nullable();
+            $t->unsignedBigInteger('size');
+            $t->json('manipulations');
+            $t->json('custom_properties');
+            $t->json('generated_conversions');
+            $t->json('responsive_images');
+            $t->unsignedInteger('order_column')->nullable()->index();
+            $t->nullableTimestamps();
         });
 
-        $this->business = GhorfeOnlineList::create(['title' => 'کسب‌وکار تست']);
+        $this->business = GhorfeOnlineList::create(['title' => 'کسب‌وکار تست', 'status' => false]);
         $this->signer = User::create(['name' => 'امضا', 'family' => 'کننده', 'phone' => '09121234567', 'level' => 'admin', 'active' => 1]);
         $this->colleague = User::create(['name' => 'همکار', 'phone' => '09351234567', 'level' => 'admin', 'active' => 1]);
 
@@ -170,10 +230,32 @@ class SmsContractSigningOtpTest extends TestCase
         $business = $this->business->fresh();
         $this->assertTrue((bool) $business->sms_contract_accepted);
         $this->assertSame('علی رضایی', $business->sms_contract_signature_name);
-        $this->assertSame($this->signer->id, (int) $business->sms_contract_accepted_by);
-        $this->assertSame('09121234567', $business->sms_contract_signed_phone);
-        $this->assertSame(app(SmsContractOtpService::class)->contractHash('متن تعهدنامه', 'متن ضوابط'), $business->sms_contract_text_hash);
-        $this->assertNotNull($business->sms_contract_otp_verified_at);
+
+        // The signing line in the central history: reason 1, status 1, the SMS marker, the signer,
+        // the name in «», the verified phone, the OTP time and the text hash.
+        $line = SmsSignatureRecord::lineFor($business);
+        $this->assertNotNull($line);
+        $this->assertSame(SmsSignatureRecord::REASON_ID, (int) $line->reason_id);
+        $this->assertSame(SmsSignatureRecord::STATUS, (int) $line->status);
+        $this->assertSame($this->signer->id, (int) $line->user_id);
+        $this->assertStringContainsString(SmsSignatureRecord::MARKER, $line->description);
+        $this->assertStringContainsString('امضاکننده: «علی رضایی»', $line->description);
+
+        $parsed = SmsSignatureRecord::parse($line->description);
+        $this->assertSame('علی رضایی', $parsed['name']);
+        $this->assertSame('09121234567', $parsed['phone']);
+        $this->assertSame(app(SmsContractOtpService::class)->contractHash('متن تعهدنامه', 'متن ضوابط'), $parsed['hash']);
+        $this->assertNotNull($parsed['verified_at']);
+
+        // And the exact signed text is kept as a snapshot on the business, the central way.
+        $snapshot = ContractView::query()
+            ->where('contract_type', GhorfeOnlineList::class)
+            ->where('contract_id', $business->id)
+            ->latest('id')
+            ->first();
+        $this->assertNotNull($snapshot, 'the signed text must be kept as a contract_views snapshot');
+        $this->assertStringContainsString('متن تعهدنامه', $snapshot->contract);
+        $this->assertStringContainsString('متن ضوابط', $snapshot->contract);
 
         // Single use: the same code cannot sign again, and a signed contract is final.
         $this->assertSame('used', DB::table('sms_logs')->where('type', 'contract_otp')->value('status'));

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exceptions\ContractMediaException;
 use App\Helpers\MediaLibraryHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Contract;
@@ -11,10 +12,33 @@ use App\Models\ContractUsage;
 use App\Models\Employee;
 use App\Models\Factor;
 use App\Models\FactorItem;
+use App\Services\V1\Admin\ContractMediaService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ContractController extends Controller
  {
+    public function __construct( protected ContractMediaService $media )
+    {
+    }
+
+    /** Up to 5 staff files per contract, each checked by the same rules the media service enforces. */
+    private function staffFileRules(): array
+    {
+        return [
+            'staff_files' => 'nullable|array|max:' . ContractMediaService::STAFF_LIMIT,
+            'staff_files.*' => ContractMediaService::fileRules(),
+        ];
+    }
+
+    private function staffFileMessages(): array
+    {
+        return [
+            'staff_files.max' => 'حداکثر ۵ فایل مدیریت مجاز است.',
+            'staff_files.*.mimes' => 'فرمت فایل‌ها باید pdf, doc, docx, jpg, jpeg یا png باشد.',
+            'staff_files.*.max' => 'حجم هر فایل نباید بیش از ۱۰ مگابایت باشد.',
+        ];
+    }
     /**
     * Display a listing of the resource.
     *
@@ -83,20 +107,28 @@ class ContractController extends Controller
     {
         // The Word file is optional: a contract may be text-only, and the original
         // file is only offered for download when one was actually attached.
-        $request->validate( [ 'title' => 'required', 'type'=>'required', 'contract_folder_id' => 'nullable|integer|exists:contract_folders,id' ], [
+        $request->validate( array_merge( [ 'title' => 'required', 'type'=>'required', 'contract_folder_id' => 'nullable|integer|exists:contract_folders,id' ], $this->staffFileRules() ), array_merge( [
             'title.required' => 'لطفا عنوان را وارد کنید',
             'type.required' => 'لطفا نوع را انتخاب کنید',
             'contract_folder_id.exists' => 'پوشه انتخاب شده معتبر نیست',
-        ] );
+        ], $this->staffFileMessages() ) );
 
-        // legacy media columns are never mass-assigned — see AdoptsLegacyMedia::exceptLegacyMediaKeys()
-        $contract = Contract::create( ( new Contract )->exceptLegacyMediaKeys( $request->all() ) );
+        try {
+            DB::transaction( function () use ( $request ) {
+                // legacy media columns are never mass-assigned — see AdoptsLegacyMedia::exceptLegacyMediaKeys()
+                $contract = Contract::create( ( new Contract )->exceptLegacyMediaKeys( $request->all() ) );
 
-        if ( $request->file_path ) {
-            MediaLibraryHelper::attachTo( $contract, $request->file_path, 'file' );
+                if ( $request->file_path ) {
+                    MediaLibraryHelper::attachTo( $contract, $request->file_path, 'file' );
+                }
+
+                $this->media->addStaffFiles( $contract, $request->file( 'staff_files', [] ) );
+
+                ContractHistory::create( [ 'contract_id'=>$contract->id, 'user_id'=>\Auth::user()->id, 'file'=>$contract->file ] );
+            } );
+        } catch ( ContractMediaException $e ) {
+            return redirect()->back()->withInput()->withErrors( [ 'staff_files' => $e->getMessage() ] );
         }
-
-        ContractHistory::create( [ 'contract_id'=>$contract->id, 'user_id'=>\Auth::user()->id, 'file'=>$contract->file ] );
 
         return redirect( 'dashboard/contract' )->with( [ 'create' => 'success' ] );
     }
@@ -128,6 +160,7 @@ class ContractController extends Controller
             return view( 'Admin.contract.edit', [
                 'contract' => $contract,
                 'folders' => ContractFolder::options(),
+                'staffLocked' => $this->media->isStaffLocked( $contract ),
             ] );
         }
         return redirect()->back();
@@ -143,17 +176,26 @@ class ContractController extends Controller
 
     public function update( Request $request, $id )
     {
-        $request->validate( [ 'title' => 'required', 'type'=>'required' ], [
+        $request->validate( array_merge( [ 'title' => 'required', 'type'=>'required' ], $this->staffFileRules() ), array_merge( [
             'title.required' => 'لطفا عنوان را وارد کنید',
             'type.required' => 'لطفا نوع را انتخاب کنید',
-        ] );
+        ], $this->staffFileMessages() ) );
         $contract = Contract::find( $id );
-        $contract->update( $contract->exceptLegacyMediaKeys( $request->all() ) );
 
-        if ( $request->file_path ) {
-            MediaLibraryHelper::attachTo( $contract, $request->file_path, 'file' );
+        try {
+            DB::transaction( function () use ( $request, $contract ) {
+                $contract->update( $contract->exceptLegacyMediaKeys( $request->all() ) );
 
-            ContractHistory::create( [ 'contract_id'=>$contract->id, 'user_id'=>\Auth::user()->id, 'file'=>$contract->file ] );
+                if ( $request->file_path ) {
+                    MediaLibraryHelper::attachTo( $contract, $request->file_path, 'file' );
+
+                    ContractHistory::create( [ 'contract_id'=>$contract->id, 'user_id'=>\Auth::user()->id, 'file'=>$contract->file ] );
+                }
+
+                $this->media->addStaffFiles( $contract, $request->file( 'staff_files', [] ) );
+            } );
+        } catch ( ContractMediaException $e ) {
+            return redirect()->back()->withInput()->withErrors( [ 'staff_files' => $e->getMessage() ] );
         }
 
         return redirect( '/dashboard/contract' )->with( [ 'update' => 'success' ] );
@@ -240,5 +282,39 @@ class ContractController extends Controller
         }
 
         return redirect()->back()->withErrors( [ 'file' => 'فایلی برای این قرارداد بارگذاری نشده است' ] );
+    }
+
+    /**
+     * Adds staff files to a contract, up to 5 in total. Refused once the contract is locked.
+     */
+    public function storeStaffFiles( Request $request, $id )
+    {
+        $request->validate( $this->staffFileRules(), $this->staffFileMessages() );
+
+        $contract = Contract::findOrFail( $id );
+
+        try {
+            $this->media->addStaffFiles( $contract, $request->file( 'staff_files', [] ) );
+        } catch ( ContractMediaException $e ) {
+            return redirect()->back()->withErrors( [ 'staff_files' => $e->getMessage() ] );
+        }
+
+        return redirect()->back()->with( [ 'update' => 'success' ] );
+    }
+
+    /**
+     * Removes one staff file. Refused once the contract is locked.
+     */
+    public function destroyStaffFile( $id, $mediaId )
+    {
+        $contract = Contract::findOrFail( $id );
+
+        try {
+            $this->media->removeStaffFile( $contract, (string) $mediaId );
+        } catch ( ContractMediaException $e ) {
+            return redirect()->back()->withErrors( [ 'staff_files' => $e->getMessage() ] );
+        }
+
+        return redirect()->back()->with( [ 'update' => 'success' ] );
     }
 }

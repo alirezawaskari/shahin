@@ -239,27 +239,7 @@
                                         $effOtp = $specOtp ?: $otpContractUsage;
                                     @endphp
                                     @php
-                                        $otpAttachments = collect();
-                                        if ($effOtp) {
-                                            foreach ($effOtp->getMedia('staff_attachments') as $m) {
-                                                $otpAttachments->push(['name' => $m->file_name, 'url' => $m->getUrl(), 'type' => 'staff', 'label' => 'پیوست مدیریت']);
-                                            }
-                                            foreach ($effOtp->getMedia('client_attachments') as $m) {
-                                                $otpAttachments->push(['name' => $m->file_name, 'url' => $m->getUrl(), 'type' => 'client', 'label' => 'پیوست کاربر']);
-                                            }
-                                        }
-                                        if ($biz) {
-                                            foreach ($biz->getMedia('sms_contract_attachments_staff') as $m) {
-                                                if (!$otpAttachments->contains('url', $m->getUrl())) {
-                                                    $otpAttachments->push(['name' => $m->file_name, 'url' => $m->getUrl(), 'type' => 'staff', 'label' => 'پیوست مدیریت']);
-                                                }
-                                            }
-                                            foreach ($biz->getMedia('sms_contract_attachments_client') as $m) {
-                                                if (!$otpAttachments->contains('url', $m->getUrl())) {
-                                                    $otpAttachments->push(['name' => $m->file_name, 'url' => $m->getUrl(), 'type' => 'client', 'label' => 'پیوست کاربر']);
-                                                }
-                                            }
-                                        }
+                                        $otpAttachments = collect(app(\App\Services\SmsSettings\SmsContractService::class)->attachmentItems($effOtp, $biz, 'sms_otp', $canReviewContracts));
                                     @endphp
                                     <tr>
                                         <td class="ps-3">{{ $biz->id }}</td>
@@ -358,27 +338,7 @@
                                     @php
                                         $specAdv = $business ? $businessAdvUsage : $biz->advertising_contract_usage;
                                         $effAdv = $specAdv ?: $advContractUsage;
-                                        $advAttachments = collect();
-                                        if ($effAdv) {
-                                            foreach ($effAdv->getMedia('staff_attachments') as $m) {
-                                                $advAttachments->push(['name' => $m->file_name, 'url' => $m->getUrl(), 'type' => 'staff', 'label' => 'پیوست مدیریت']);
-                                            }
-                                            foreach ($effAdv->getMedia('client_attachments') as $m) {
-                                                $advAttachments->push(['name' => $m->file_name, 'url' => $m->getUrl(), 'type' => 'client', 'label' => 'پیوست کاربر']);
-                                            }
-                                        }
-                                        if ($biz) {
-                                            foreach ($biz->getMedia('sms_contract_attachments_staff') as $m) {
-                                                if (!$advAttachments->contains('url', $m->getUrl())) {
-                                                    $advAttachments->push(['name' => $m->file_name, 'url' => $m->getUrl(), 'type' => 'staff', 'label' => 'پیوست مدیریت']);
-                                                }
-                                            }
-                                            foreach ($biz->getMedia('sms_contract_attachments_client') as $m) {
-                                                if (!$advAttachments->contains('url', $m->getUrl())) {
-                                                    $advAttachments->push(['name' => $m->file_name, 'url' => $m->getUrl(), 'type' => 'client', 'label' => 'پیوست کاربر']);
-                                                }
-                                            }
-                                        }
+                                        $advAttachments = collect(app(\App\Services\SmsSettings\SmsContractService::class)->attachmentItems($effAdv, $biz, 'sms_advertising', $canReviewContracts));
                                     @endphp
                                     <tr>
                                         <td class="ps-3">{{ $biz->id }}</td>
@@ -556,49 +516,8 @@
         $effAdvBiz = $businessAdvUsage ?: $advContractUsage;
     @endphp
     @php
-        $effOtpBizAttachments = collect();
-        if ($effOtpBiz) {
-            foreach ($effOtpBiz->getMedia('staff_attachments') as $m) {
-                $effOtpBizAttachments->push(['name' => $m->file_name, 'url' => $m->getUrl(), 'type' => 'staff', 'label' => 'پیوست مدیریت']);
-            }
-            foreach ($effOtpBiz->getMedia('client_attachments') as $m) {
-                $effOtpBizAttachments->push(['name' => $m->file_name, 'url' => $m->getUrl(), 'type' => 'client', 'label' => 'پیوست کاربر']);
-            }
-        }
-        if ($business) {
-            foreach ($business->getMedia('sms_contract_attachments_staff') as $m) {
-                if (!$effOtpBizAttachments->contains('url', $m->getUrl())) {
-                    $effOtpBizAttachments->push(['name' => $m->file_name, 'url' => $m->getUrl(), 'type' => 'staff', 'label' => 'پیوست مدیریت']);
-                }
-            }
-            foreach ($business->getMedia('sms_contract_attachments_client') as $m) {
-                if (!$effOtpBizAttachments->contains('url', $m->getUrl())) {
-                    $effOtpBizAttachments->push(['name' => $m->file_name, 'url' => $m->getUrl(), 'type' => 'client', 'label' => 'پیوست کاربر']);
-                }
-            }
-        }
-
-        $effAdvBizAttachments = collect();
-        if ($effAdvBiz) {
-            foreach ($effAdvBiz->getMedia('staff_attachments') as $m) {
-                $effAdvBizAttachments->push(['name' => $m->file_name, 'url' => $m->getUrl(), 'type' => 'staff', 'label' => 'پیوست مدیریت']);
-            }
-            foreach ($effAdvBiz->getMedia('client_attachments') as $m) {
-                $effAdvBizAttachments->push(['name' => $m->file_name, 'url' => $m->getUrl(), 'type' => 'client', 'label' => 'پیوست کاربر']);
-            }
-        }
-        if ($business) {
-            foreach ($business->getMedia('sms_contract_attachments_staff') as $m) {
-                if (!$effAdvBizAttachments->contains('url', $m->getUrl())) {
-                    $effAdvBizAttachments->push(['name' => $m->file_name, 'url' => $m->getUrl(), 'type' => 'staff', 'label' => 'پیوست مدیریت']);
-                }
-            }
-            foreach ($business->getMedia('sms_contract_attachments_client') as $m) {
-                if (!$effAdvBizAttachments->contains('url', $m->getUrl())) {
-                    $effAdvBizAttachments->push(['name' => $m->file_name, 'url' => $m->getUrl(), 'type' => 'client', 'label' => 'پیوست کاربر']);
-                }
-            }
-        }
+        $effOtpBizAttachments = collect(app(\App\Services\SmsSettings\SmsContractService::class)->attachmentItems($effOtpBiz, $business, 'sms_otp', $canReviewContracts));
+        $effAdvBizAttachments = collect(app(\App\Services\SmsSettings\SmsContractService::class)->attachmentItems($effAdvBiz, $business, 'sms_advertising', $canReviewContracts));
     @endphp
     <div class="row g-3 mb-4">
         <!-- OTP Contract Card (Read-Only) -->
@@ -1202,6 +1121,45 @@ document.addEventListener('DOMContentLoaded', function () {
     const viewModalEl = document.getElementById('viewContractModal');
     const viewModal = (viewModalEl && typeof bootstrap !== 'undefined') ? new bootstrap.Modal(viewModalEl) : null;
 
+    // One approve / reject button for a client file. Reject asks for the reason and refuses an empty one.
+    function makeReviewForm(url, isReject, cls, label) {
+        const token = document.querySelector('meta[name="csrf-token"]');
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = url;
+        form.className = 'd-inline me-1';
+
+        const csrf = document.createElement('input');
+        csrf.type = 'hidden';
+        csrf.name = '_token';
+        csrf.value = token ? token.getAttribute('content') : '';
+        form.appendChild(csrf);
+
+        const button = document.createElement('button');
+        button.type = 'submit';
+        button.className = 'btn btn-sm ' + cls + ' py-0 px-2';
+        button.textContent = label;
+        form.appendChild(button);
+
+        form.addEventListener('submit', function (event) {
+            if (!isReject) {
+                return;
+            }
+            const reason = window.prompt('دلیل رد فایل را وارد کنید (الزامی):', '');
+            if (!reason || !reason.trim()) {
+                event.preventDefault();
+                return;
+            }
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'reason';
+            input.value = reason.trim();
+            form.appendChild(input);
+        });
+
+        return form;
+    }
+
     document.querySelectorAll('.view-contract-btn').forEach(function (btn) {
         btn.addEventListener('click', function () {
             document.getElementById('viewModalTitle').textContent = this.getAttribute('data-title') || 'مشاهده قرارداد';
@@ -1241,6 +1199,17 @@ document.addEventListener('DOMContentLoaded', function () {
                                 </a>
                             </div>
                         `;
+
+                        // Staff review of a client file: approve, or reject with a reason (central routes).
+                        if (item.type === 'client' && item.approve_url) {
+                            const review = document.createElement('div');
+                            review.className = 'small mt-1 px-1';
+                            review.textContent = item.status === 'approved' ? 'وضعیت: تایید شده'
+                                : (item.status === 'rejected' ? 'وضعیت: رد شده — دلیل: ' + (item.reason || '') : 'وضعیت: در انتظار بررسی');
+                            review.appendChild(makeReviewForm(item.approve_url, false, 'btn-outline-success', 'تایید'));
+                            review.appendChild(makeReviewForm(item.reject_url, true, 'btn-outline-danger', 'رد'));
+                            col.appendChild(review);
+                        }
                         attachmentsList.appendChild(col);
                     });
                 } else {

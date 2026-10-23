@@ -2,14 +2,21 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exceptions\ContractMediaException;
 use App\Exceptions\Sms\ContractOtpException;
 use App\Http\Controllers\Controller;
 use App\Models\GhorfeOnlineList;
 use App\Services\Sms\SmsContractOtpService;
 use App\Services\SmsSettings\SmsCmsContentService;
+use App\Services\SmsSettings\SmsContractFilesService;
+use App\Services\SmsSettings\SmsContractService;
+use App\Services\SmsSettings\SmsSignatureRecord;
+use App\Services\V1\Admin\ContractMediaService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 /**
@@ -22,12 +29,17 @@ use Illuminate\View\View;
  *
  * The signature is verified with a 6-digit OTP sent to the signer's own phone
  * (SmsContractOtpService), bound to the exact contract + rules text and signature name.
+ *
+ * The signing itself is recorded the central way (a history line on the business and a
+ * snapshot of the signed text, see SmsSignatureRecord). Contracts are the central ones.
  */
 class SmsContractSignController extends Controller
 {
     public function __construct(
         protected SmsCmsContentService $cmsContent,
-        protected SmsContractOtpService $otp
+        protected SmsContractOtpService $otp,
+        protected SmsContractService $contracts,
+        protected SmsContractFilesService $files
     ) {
     }
 
@@ -63,11 +75,18 @@ class SmsContractSignController extends Controller
 
         $otpContractUsage = null;
         $businessAdvUsage = null;
+        $staffFiles = collect();
         if (\Illuminate\Support\Facades\Schema::hasTable('contract_usages')) {
-            $contractService = app(\App\Services\SmsSettings\SmsContractService::class);
-            $otpContractUsage = $contractService->getBusinessOtpContract($business) ?: $contractService->getOtpContract();
-            $businessAdvUsage = $contractService->getBusinessAdvertisingContract($business) ?: $contractService->getGlobalAdvertisingContract();
+            $otpContractUsage = $this->contracts->getBusinessOtpContract($business) ?: $this->contracts->getOtpContract();
+            $businessAdvUsage = $this->contracts->getBusinessAdvertisingContract($business) ?: $this->contracts->getGlobalAdvertisingContract();
+            $staffFiles = $this->contracts->staffFilesFor($otpContractUsage)
+                ->merge($this->contracts->staffFilesFor($businessAdvUsage))
+                ->unique('id')
+                ->values();
         }
+
+        // The client's own files, and the ones staff rejected (the only ones that can be re-uploaded).
+        $clientFiles = $this->files->clientFiles($business);
 
         return view('Admin.sms.contract.sign', [
             'business' => $business,
@@ -78,6 +97,10 @@ class SmsContractSignController extends Controller
             'isSigned' => (bool) $business->sms_contract_accepted,
             'otpPhoneMasked' => strlen($phone) >= 11 ? $phone : null,
             'otpResendSeconds' => (int) config('admin_auth.contract_otp.resend_cooldown_seconds'),
+            'staffFiles' => $staffFiles,
+            'clientFiles' => $clientFiles,
+            'contractMedia' => $this->files,
+            'rejectedFiles' => $clientFiles->filter(fn ($m) => $this->files->statusOf($m) === SmsContractFilesService::STATUS_REJECTED)->values(),
         ]);
     }
 
@@ -162,39 +185,76 @@ class SmsContractSignController extends Controller
             return redirect()->back()->withInput($request->except('otp'))->withErrors(['otp' => $e->getMessage()]);
         }
 
-        $business->update([
-            'sms_contract_accepted' => true,
-            'sms_contract_accepted_at' => now(),
-            'sms_contract_signature_name' => $validated['signature_name'],
-            'sms_contract_accepted_by' => auth()->id(),
-            // Evidence that this signature was verified: the phone the code went to, when, and the exact text.
-            'sms_contract_signed_phone' => $verified->phone,
-            'sms_contract_text_hash' => $verified->contract_hash,
-            'sms_contract_otp_verified_at' => now(),
-        ]);
+        try {
+            DB::transaction(function () use ($request, $business, $validated, $verified, $contractText, $rulesText) {
+                $clientFiles = array_values(array_filter((array) $request->file('client_attachments', []), fn ($f) => $f instanceof UploadedFile));
+                $this->files->storeClientFiles($business, $clientFiles);
 
-        // Save client uploaded attachments (max 5)
-        if ($request->hasFile('client_attachments')) {
-            $contractService = app(\App\Services\SmsSettings\SmsContractService::class);
-            $otpUsage = $contractService->getBusinessOtpContract($business);
-            $advUsage = $contractService->getBusinessAdvertisingContract($business);
-
-            $count = 0;
-            foreach ($request->file('client_attachments') as $file) {
-                if ($file instanceof \Illuminate\Http\UploadedFile && $count < 5) {
-                    $business->addMedia($file)->toMediaCollection('sms_contract_attachments_client');
-                    if ($otpUsage) {
-                        $otpUsage->addMedia($file)->toMediaCollection('client_attachments');
-                    }
-                    if ($advUsage) {
-                        $advUsage->addMedia($file)->toMediaCollection('client_attachments');
-                    }
-                    $count++;
-                }
-            }
+                // The signing record: one history line on the business + the exact text that was signed.
+                SmsSignatureRecord::record(
+                    $business,
+                    (int) auth()->id(),
+                    $validated['signature_name'],
+                    $verified->phone,
+                    now()->format(SmsSignatureRecord::TIME_FORMAT),
+                    $verified->contract_hash,
+                    $this->signedText($business, $contractText, $rulesText)
+                );
+            });
+        } catch (ContractMediaException $e) {
+            return redirect()->back()->withInput($request->except('otp'))->withErrors(['client_attachments' => $e->getMessage()]);
         }
 
         return redirect()->back()
             ->with('success', 'تعهدنامه استفاده از سرویس پیامک با موفقیت امضا و ثبت نهایی شد.');
+    }
+
+    /**
+     * The client re-uploads ONLY the files staff rejected. Rejection does not change the
+     * signature, and this does not reopen the signing step. The form posts replace[<media id>] => file.
+     */
+    public function reupload(Request $request): RedirectResponse
+    {
+        $business = $this->resolveBusiness($request);
+
+        if (!$business->sms_contract_accepted) {
+            return redirect()->route('admin.sms.contract.sign')
+                ->with('warning', 'ابتدا تعهدنامه را امضا کنید؛ سپس می‌توانید فایل‌های ردشده را دوباره بارگذاری کنید.');
+        }
+
+        $request->validate([
+            'replace' => 'required|array|min:1|max:' . SmsContractFilesService::CLIENT_LIMIT,
+            'replace.*' => ContractMediaService::fileRules(),
+        ], [
+            'replace.required' => 'فایلی برای بارگذاری مجدد انتخاب نشده است.',
+            'replace.*.mimes' => 'فرمت فایل‌ها باید pdf, doc, docx, jpg, jpeg یا png باشد.',
+            'replace.*.max' => 'حجم هر فایل نباید بیش از ۱۰ مگابایت باشد.',
+        ]);
+
+        try {
+            $this->files->reuploadRejected($business, $request->file('replace', []));
+        } catch (ContractMediaException $e) {
+            return redirect()->back()->withErrors(['replace' => $e->getMessage()]);
+        }
+
+        return redirect()->back()
+            ->with('success', 'فایل‌های ردشده با موفقیت دوباره بارگذاری شدند و در انتظار بررسی مدیریت هستند.');
+    }
+
+    /** The text that is signed: the telecom rules, the contract text, and the contracts shown to the business. */
+    private function signedText(GhorfeOnlineList $business, string $contractText, string $rulesText): string
+    {
+        $parts = [$contractText, $rulesText];
+
+        foreach ([
+            $this->contracts->getBusinessOtpContract($business) ?: $this->contracts->getOtpContract(),
+            $this->contracts->getBusinessAdvertisingContract($business) ?: $this->contracts->getGlobalAdvertisingContract(),
+        ] as $usage) {
+            if ($usage?->contract?->content) {
+                $parts[] = $usage->contract->content;
+            }
+        }
+
+        return implode("\n<hr>\n", $parts);
     }
 }

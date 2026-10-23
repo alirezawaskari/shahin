@@ -864,6 +864,9 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'dashboard', 'middleware' => [
     // Registered before the resource so /contract/{id}/export is not swallowed by show/{contract}.
     Route::get('/contract/{contract}/export/{usage?}', 'ContractController@export')->name('contract.export');
     Route::get('/contract/{contract}/download', 'ContractController@download')->name('contract.download');
+    // staff files of a contract (up to 5, locked once signed)
+    Route::post('/contract/{contract}/staff-files', 'ContractController@storeStaffFiles')->name('contract.staffFiles.store');
+    Route::delete('/contract/{contract}/staff-files/{media}', 'ContractController@destroyStaffFile')->name('contract.staffFiles.destroy');
     //contract folders (پوشه های قرارداد)
     Route::resource('contractFolder', 'ContractFolderController')->except(['show']);
     //contract usages: the contract <-> service/role/location relation

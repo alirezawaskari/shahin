@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Admin\SmsSettings;
 
+use App\Exceptions\ContractMediaException;
+use App\Models\Media;
 use App\Http\Controllers\Controller;
 use App\Models\Contract;
 use App\Models\ContractFolder;
 use App\Models\ContractUsage;
 use App\Models\GhorfeOnlineList;
+use App\Services\SmsSettings\SmsContractFilesService;
 use App\Services\SmsSettings\SmsContractService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -17,7 +20,8 @@ class SmsContractController extends Controller
 {
     public function __construct(
         protected SmsContractService $contractService,
-        protected \App\Services\SmsSettings\SmsCmsContentService $cmsContent
+        protected \App\Services\SmsSettings\SmsCmsContentService $cmsContent,
+        protected SmsContractFilesService $files
     ) {
     }
 
@@ -76,7 +80,11 @@ class SmsContractController extends Controller
             : null;
         $otpResendSeconds = (int) config('admin_auth.contract_otp.resend_cooldown_seconds', 60);
 
+        // Approve / reject of client files: super admin on the staff list only, never from a business's own view.
+        $canReviewContracts = (bool) (auth()->user()?->isSuperAdmin() && !$business);
+
         return view('Admin.sms.settings.contracts.index', compact(
+            'canReviewContracts',
             'otpContractUsage',
             'advContractUsage',
             'businessAdvUsage',
@@ -195,5 +203,62 @@ class SmsContractController extends Controller
 
         return redirect()->route('admin.sms.settings.contracts.index')
             ->with('success', 'قرارداد با موفقیت از محل استفاده لغو گردید.');
+    }
+
+    /**
+     * Staff approve of one client file of a business.
+     */
+    public function approveFile(Request $request, string $media): RedirectResponse
+    {
+        $file = $this->clientFile($media);
+
+        $this->files->approve($file, auth()->id());
+
+        return redirect()->back()->with(['update' => 'success']);
+    }
+
+    /**
+     * Staff rejection of one client file of a business. The reason is required.
+     */
+    public function rejectFile(Request $request, string $media): RedirectResponse
+    {
+        $file = $this->clientFile($media);
+
+        $request->validate(
+            ['reason' => 'required|string|max:' . SmsContractFilesService::REASON_MAX_LENGTH],
+            [
+                'reason.required' => 'دلیل رد فایل الزامی است.',
+                'reason.max' => 'دلیل رد فایل نباید بیش از ۵۰۰ نویسه باشد.',
+            ]
+        );
+
+        try {
+            $this->files->reject($file, auth()->id(), (string) $request->input('reason'));
+        } catch (ContractMediaException $e) {
+            return redirect()->back()->withErrors(['reason' => $e->getMessage()]);
+        }
+
+        // TODO (CTO decision, not live): notify the client by SMS that this file was rejected and
+        // can be re-uploaded from the sign page. The SMS-notifying path is deliberately not wired yet.
+
+        return redirect()->back()->with(['update' => 'success']);
+    }
+
+    /**
+     * Only a client file of a business can be reviewed here, and only by a super admin. Business
+     * admins also pass the route's checkAdmin, so the route group alone would let them review any file.
+     */
+    private function clientFile(string $mediaId): Media
+    {
+        abort_unless(auth()->user()?->isSuperAdmin(), 403);
+
+        $media = Media::query()->find($mediaId);
+
+        abort_unless(
+            $media && $media->model_type === GhorfeOnlineList::class && $media->collection_name === SmsContractFilesService::COLLECTION,
+            404
+        );
+
+        return $media;
     }
 }

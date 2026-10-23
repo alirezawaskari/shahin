@@ -190,6 +190,54 @@
         </div>
     </div>
 
+    {{-- فایل‌های مدیریت: up to 5, changeable only while the contract is not locked by a signature. --}}
+    <div class="card">
+        <div class="card-body">
+            <div class="x_title">
+                <h4>فایل‌های مدیریت این قرارداد ({{ $contract->getMedia('staff_attachments')->count() }} از ۵)</h4>
+                <div class="clearfix"></div>
+            </div>
+
+            @if($staffLocked)
+                <div class="alert alert-secondary small">این قرارداد امضا شده است؛ فایل‌های مدیریت دیگر قابل تغییر نیستند.</div>
+            @endif
+
+            <ul class="list-unstyled mb-3">
+                @forelse($contract->getMedia('staff_attachments') as $staffFile)
+                    <li class="d-flex align-items-center justify-content-between border rounded p-2 mb-2 small">
+                        <span class="text-truncate me-2">{{ $staffFile->file_name }}</span>
+                        <span class="d-flex gap-1">
+                            <a href="{{ $staffFile->getUrl() }}" target="_blank" rel="noopener" class="btn btn-primary btn-sm py-0 px-2">مشاهده</a>
+                            @unless($staffLocked)
+                                <form method="post" action="{{ route('contract.staffFiles.destroy', [$contract->id, $staffFile->id]) }}" class="d-inline">
+                                    {{ csrf_field() }}
+                                    {{ method_field('DELETE') }}
+                                    <button type="submit" class="btn btn-danger btn-sm py-0 px-2"
+                                            onclick="return confirm('این فایل حذف شود؟');">حذف</button>
+                                </form>
+                            @endunless
+                        </span>
+                    </li>
+                @empty
+                    <li class="text-muted small">فایلی بارگذاری نشده است.</li>
+                @endforelse
+            </ul>
+
+            @unless($staffLocked)
+                <form method="post" action="{{ route('contract.staffFiles.store', $contract->id) }}" enctype="multipart/form-data">
+                    {{ csrf_field() }}
+                    <input type="file" name="staff_files[]" class="form-control form-control-sm mb-2" multiple
+                           accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                    <small class="text-muted d-block mb-2">فرمت‌های مجاز: pdf، doc، docx، jpg، jpeg، png - حداکثر ۱۰ مگابایت برای هر فایل</small>
+                    @if($errors->has('staff_files'))
+                        <span class="help-block sub-error d-block mb-2">{{ $errors->first('staff_files') }}</span>
+                    @endif
+                    <button type="submit" class="btn btn-success btn-sm">بارگذاری فایل‌های مدیریت</button>
+                </form>
+            @endunless
+        </div>
+    </div>
+
 @stop
 @section('js')
 

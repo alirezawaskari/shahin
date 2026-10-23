@@ -2,60 +2,126 @@
 
 namespace App\Services\SmsSettings;
 
+use App\Exceptions\ContractMediaException;
 use App\Helpers\MediaLibraryHelper;
 use App\Models\Contract;
 use App\Models\ContractFolder;
 use App\Models\ContractHistory;
 use App\Models\ContractUsage;
 use App\Models\GhorfeOnlineList;
+use App\Services\V1\Admin\ContractMediaService;
+use App\Services\V1\Admin\ContractResolver;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
+/**
+ * SMS side of the contract module. The contracts, their files and their assignments are the
+ * central ones (Contract, ContractUsage, ContractResolver). This class only adds the two SMS
+ * specifics: the panel names (sms_otp, sms_advertising) and the client files of a business.
+ *
+ * A panel's general contract is the central location-wide usage (usable NULL at that location).
+ * A business's own contract is the central usage with the business as owner.
+ */
 class SmsContractService
 {
-    /**
-     * Get or create the dedicated folder for SMS contracts in the contract bank.
-     */
-    public function getOrCreateSmsFolder(): ContractFolder
-    {
-        return ContractFolder::firstOrCreate(
-            ['title' => 'قراردادهای پیامک'],
-            [
-                'description' => 'پوشه پیش‌فرض قراردادها و تعهدنامه‌های سرویس پیامک',
-                'position' => 1,
-                'is_active' => true,
-            ]
-        );
+    public function __construct(
+        protected ContractMediaService $contractMedia,
+        protected ContractResolver $resolver,
+        protected SmsContractFilesService $files
+    ) {
     }
 
-    /**
-     * Get the active global OTP contract usage (template/master contract).
-     */
+    /** The general contract of the OTP panel (location-wide usage). */
     public function getOtpContract(): ?ContractUsage
     {
-        return ContractUsage::query()
-            ->location('sms_otp')
-            ->global()
-            ->active()
-            ->with(['contract.folder', 'contract.media', 'media'])
-            ->first();
+        return $this->resolver->forLocation('sms_otp');
+    }
+
+    /** The general contract of the advertising panel (location-wide usage). */
+    public function getGlobalAdvertisingContract(): ?ContractUsage
+    {
+        return $this->resolver->forLocation('sms_advertising');
     }
 
     /**
-     * Get the active global Advertising contract usage (template/master contract).
+     * Staff files that apply to a usage: the usage's own (legacy) files, the contract's, and the
+     * staff files kept on the business before the central module. Nothing is copied; all are read.
      */
-    public function getGlobalAdvertisingContract(): ?ContractUsage
+    public function staffFilesFor(?ContractUsage $usage): Collection
     {
-        return ContractUsage::query()
-            ->location('sms_advertising')
-            ->global()
-            ->active()
-            ->with(['contract.folder', 'contract.media', 'media'])
-            ->first();
+        if (! $usage) {
+            return collect();
+        }
+
+        $own = $usage->exists ? $usage->getMedia('staff_attachments') : collect();
+        $fromContract = $usage->contract ? $usage->contract->getMedia('staff_attachments') : collect();
+        $legacy = $usage->usable instanceof GhorfeOnlineList
+            ? $usage->usable->getMedia('sms_contract_attachments_staff')
+            : collect();
+
+        return $own->merge($fromContract)->merge($legacy)->values();
+    }
+
+    /**
+     * Files of one contract for the SMS contract tables and the view modal: the staff files,
+     * then the business's client files, each with its review state and the approve / reject URLs
+     * (SMS routes, same guard as this page).
+     *
+     * $location is kept for the views, which pass the panel; the client files are the business's own.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function attachmentItems(?ContractUsage $usage, ?GhorfeOnlineList $business, string $location, bool $canReview = false): array
+    {
+        $items = [];
+
+        foreach ($this->staffFilesFor($usage) as $media) {
+            $items[] = [
+                'name' => $media->file_name,
+                'url' => $media->getUrl(),
+                'type' => 'staff',
+                'label' => 'پیوست مدیریت',
+                'status' => null,
+                'reason' => null,
+                'approve_url' => null,
+                'reject_url' => null,
+            ];
+        }
+
+        foreach ($this->clientFilesFor($business) as $media) {
+            $items[] = [
+                'name' => $media->file_name,
+                'url' => $media->getUrl(),
+                'type' => 'client',
+                'label' => 'پیوست کاربر',
+                'status' => $this->files->statusOf($media),
+                'reason' => (string) $media->getCustomProperty('rejected_reason', ''),
+                // Review actions only where the caller may review (super admin, staff list view).
+                'approve_url' => $canReview ? route('admin.sms.contract.files.approve', $media->id) : null,
+                'reject_url' => $canReview ? route('admin.sms.contract.files.reject', $media->id) : null,
+            ];
+        }
+
+        return $items;
+    }
+
+    /**
+     * Client files of a business (up to 5). Empty for no business.
+     *
+     * @return Collection<int, Media>
+     */
+    public function clientFilesFor(?GhorfeOnlineList $business): Collection
+    {
+        if (! $business) {
+            return collect();
+        }
+
+        return $this->files->clientFiles($business);
     }
 
     /**
@@ -63,12 +129,7 @@ class SmsContractService
      */
     public function getBusinessOtpContract(GhorfeOnlineList $business): ?ContractUsage
     {
-        return ContractUsage::query()
-            ->location('sms_otp')
-            ->for(GhorfeOnlineList::class, $business->id)
-            ->active()
-            ->with(['contract.folder', 'contract.media', 'media'])
-            ->first();
+        return $this->resolver->forOwner(GhorfeOnlineList::class, $business->id, 'sms_otp');
     }
 
     /**
@@ -76,12 +137,7 @@ class SmsContractService
      */
     public function getBusinessAdvertisingContract(GhorfeOnlineList $business): ?ContractUsage
     {
-        return ContractUsage::query()
-            ->location('sms_advertising')
-            ->for(GhorfeOnlineList::class, $business->id)
-            ->active()
-            ->with(['contract.folder', 'contract.media', 'media'])
-            ->first();
+        return $this->resolver->forOwner(GhorfeOnlineList::class, $business->id, 'sms_advertising');
     }
 
     /**
@@ -130,13 +186,11 @@ class SmsContractService
     }
 
     /**
-     * Save an SMS contract or template (OTP or Advertising).
-     *
-     * Legal immutability rule: Existing contracts are NEVER mutated in place.
-     * Super Admin can:
-     * 1) Create a template in the contract bank (and optionally set it as the active global default for the panel).
-     * 2) Assign a template from the bank to a business (or set as panel default).
-     * 3) Create a custom one-off contract and assign it directly to a business (without saving it to the template folder unless `save_as_template` is checked).
+     * Save an SMS contract (OTP or Advertising), through the central models:
+     *  - a general contract of the panel = one location-wide usage (replaces the previous one);
+     *  - a business's contract = one usage per owner per location (replaces the previous one);
+     *  - a bank-only template is saved without any usage.
+     * Contracts already in use are never edited here.
      */
     public function saveContract(
         string $serviceType,
@@ -168,20 +222,17 @@ class SmsContractService
             ]);
         }
 
-        return DB::transaction(function () use ($location, $ownerType, $ownerId, $business, $data, $file, $filePath, $staffAttachments, $templateOnly, $saveAsTemplate) {
+        return DB::transaction(function () use ($location, $ownerType, $ownerId, $data, $file, $filePath, $staffAttachments, $templateOnly) {
             $contractId = null;
 
             if (($data['mode'] ?? 'new') === 'existing' && !empty($data['contract_id'])) {
                 $contractId = (int) $data['contract_id'];
                 $contract = Contract::findOrFail($contractId);
             } else {
-                // Only place in the SMS Templates folder if saving as a reusable template;
-                // one-off custom contracts created directly for an assignee stay uncategorised (folder = null).
+                // A folder is applied only when the user explicitly picks one.
                 $folder = null;
-                if ($saveAsTemplate) {
-                    $folder = !empty($data['contract_folder_id'])
-                        ? ContractFolder::find($data['contract_folder_id'])
-                        : $this->getOrCreateSmsFolder();
+                if (!empty($data['contract_folder_id'])) {
+                    $folder = ContractFolder::find($data['contract_folder_id']);
                 }
 
                 $contract = Contract::create([
@@ -213,15 +264,26 @@ class SmsContractService
                 }
             }
 
+            // Staff files belong to the contract itself (max 5, enforced by the media service).
+            $staffFiles = is_array($staffAttachments)
+                ? array_values(array_filter($staffAttachments, fn ($f) => $f instanceof UploadedFile))
+                : [];
+            if ($staffFiles) {
+                try {
+                    $this->contractMedia->addStaffFiles($contract, $staffFiles);
+                } catch (ContractMediaException $e) {
+                    throw ValidationException::withMessages(['staff_attachments' => [$e->getMessage()]]);
+                }
+            }
+
             if ($templateOnly) {
                 return $contract;
             }
 
-            // Detach previous active contract for this location & owner
+            // One usage per owner (or per location for the general contract) and location.
             $this->detachPrevious($location, $ownerType, $ownerId);
 
-            // Create new ContractUsage
-            $usage = ContractUsage::create([
+            return ContractUsage::create([
                 'contract_id' => $contractId,
                 'usable_type' => $ownerType,
                 'usable_id' => $ownerId,
@@ -231,22 +293,6 @@ class SmsContractService
                 'is_active' => true,
                 'position' => 0,
             ]);
-
-            // Save staff attachments (max 5)
-            if (!empty($staffAttachments) && is_array($staffAttachments)) {
-                $count = 0;
-                foreach ($staffAttachments as $attachment) {
-                    if ($attachment instanceof UploadedFile && $count < 5) {
-                        $usage->addMedia($attachment)->toMediaCollection('staff_attachments');
-                        if ($business) {
-                            $business->addMedia($attachment)->toMediaCollection('sms_contract_attachments_staff');
-                        }
-                        $count++;
-                    }
-                }
-            }
-
-            return $usage;
         });
     }
 
@@ -259,7 +305,7 @@ class SmsContractService
     }
 
     /**
-     * Remove previous active usages for the given location and owner.
+     * Remove previous usages for the given location and owner (the general one when no owner).
      */
     protected function detachPrevious(string $location, ?string $ownerType, ?int $ownerId): void
     {

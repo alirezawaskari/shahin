@@ -83,24 +83,30 @@
                             </div>
                         </div>
 
-                        @php
-                            $clientMedia = $business->getMedia('sms_contract_attachments_client');
-                            $staffMedia = $business->getMedia('sms_contract_attachments_staff');
-                        @endphp
-
-                        @if($clientMedia->isNotEmpty() || $staffMedia->isNotEmpty())
+                        {{-- Files of this contract: staff files (read-only to the client) and the client's own files.
+                             Rejected client files can be replaced, only those, below. --}}
+                        @if($staffFiles->isNotEmpty() || $clientFiles->isNotEmpty())
                             <div class="border rounded p-3 mb-3 bg-white">
                                 <h6 class="fw-bold small mb-2 text-dark">
                                     <i class="fa fa-paperclip text-primary me-1"></i> مدارک و پیوست‌های ثبت‌شده:
                                 </h6>
                                 <div class="row g-2">
-                                    @foreach($clientMedia as $mediaItem)
+                                    @foreach($clientFiles as $mediaItem)
+                                        @php $status = $contractMedia->statusOf($mediaItem); @endphp
                                         <div class="col-12 col-md-6">
                                             <div class="d-flex align-items-center justify-content-between p-2 border rounded bg-light small">
                                                 <div class="text-truncate me-2">
                                                     <i class="fa fa-file-text-o text-muted me-1"></i>
                                                     <span title="{{ $mediaItem->file_name }}">{{ Str::limit($mediaItem->file_name, 25) }}</span>
                                                     <span class="badge bg-secondary ms-1">پیوست کاربر</span>
+                                                    @if($status === \App\Services\SmsSettings\SmsContractFilesService::STATUS_APPROVED)
+                                                        <span class="badge bg-success ms-1">تایید شده</span>
+                                                    @elseif($status === \App\Services\SmsSettings\SmsContractFilesService::STATUS_REJECTED)
+                                                        <span class="badge bg-danger ms-1">رد شده</span>
+                                                        <div class="text-danger small mt-1">دلیل: {{ $mediaItem->getCustomProperty('rejected_reason') }}</div>
+                                                    @else
+                                                        <span class="badge bg-light text-dark border ms-1">در انتظار بررسی</span>
+                                                    @endif
                                                 </div>
                                                 <a href="{{ $mediaItem->getUrl() }}" target="_blank" class="btn btn-sm btn-outline-primary py-0 px-2">
                                                     <i class="fa fa-download"></i>
@@ -108,7 +114,7 @@
                                             </div>
                                         </div>
                                     @endforeach
-                                    @foreach($staffMedia as $mediaItem)
+                                    @foreach($staffFiles as $mediaItem)
                                         <div class="col-12 col-md-6">
                                             <div class="d-flex align-items-center justify-content-between p-2 border rounded bg-light small">
                                                 <div class="text-truncate me-2">
@@ -124,6 +130,26 @@
                                     @endforeach
                                 </div>
                             </div>
+                        @endif
+
+                        @if($rejectedFiles->isNotEmpty())
+                            <form action="{{ route('admin.sms.contract.reupload') }}" method="POST" enctype="multipart/form-data" class="border rounded p-3 mb-3 bg-white">
+                                @csrf
+                                <h6 class="fw-bold small mb-2 text-danger">
+                                    <i class="fa fa-refresh me-1"></i> فایل‌های ردشده را دوباره بارگذاری کنید:
+                                </h6>
+                                <p class="text-muted small mb-2">فقط فایل‌هایی که مدیریت رد کرده قابل بارگذاری مجدد هستند. امضای شما تغییر نمی‌کند.</p>
+                                @foreach($rejectedFiles as $mediaItem)
+                                    <div class="mb-2 small">
+                                        <div class="text-dark mb-1">{{ $mediaItem->file_name }} <span class="text-danger">(دلیل: {{ $mediaItem->getCustomProperty('rejected_reason') }})</span></div>
+                                        <input type="file" name="replace[{{ $mediaItem->id }}]" class="form-control form-control-sm" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                                    </div>
+                                @endforeach
+                                @error('replace')
+                                    <div class="text-danger small mb-2">{{ $message }}</div>
+                                @enderror
+                                <button type="submit" class="btn btn-warning btn-sm">بارگذاری مجدد فایل‌های ردشده</button>
+                            </form>
                         @endif
 
                         <div class="d-flex flex-wrap gap-2">

@@ -5,6 +5,7 @@ namespace App\Models;
 use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Services\SmsSettings\SmsSignatureRecord;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
@@ -62,14 +63,8 @@ class GhorfeOnlineList extends Model implements HasMedia
     protected static function booted(): void
     {
         static::saving(function (GhorfeOnlineList $model) {
+            // SMS contract signing is no longer stored as settings: it is a history line (see hasSignedSmsContract()).
             $virtualKeys = [
-                'sms_contract_accepted',
-                'sms_contract_accepted_at',
-                'sms_contract_signature_name',
-                'sms_contract_accepted_by',
-                'sms_contract_signed_phone',
-                'sms_contract_text_hash',
-                'sms_contract_otp_verified_at',
                 'otp_balance',
                 'advertising_balance',
             ];
@@ -542,13 +537,33 @@ class GhorfeOnlineList extends Model implements HasMedia
         return (float) ($this->attributes['otp_low_balance_threshold'] ?? 1000000);
     }
 
+    /** Central history lines of this business (contract signings, among others). */
+    public function histories()
+    {
+        return $this->morphMany(History::class, 'historiable');
+    }
+
+    /** The SMS signing line (reason 1, status 1, SMS marker), or null when the business never signed through SMS. */
+    public function smsSignatureLine(): ?History
+    {
+        return SmsSignatureRecord::lineFor($this);
+    }
+
+    /** True when an SMS signing record exists. Used by the contract lock: a status-only business does not count. */
+    public function hasSmsSignatureRecord(): bool
+    {
+        return $this->smsSignatureLine() !== null;
+    }
+
+    /**
+     * SMS gate: signed when the signing line exists. The legacy `status == 1` fallback stays as it was.
+     */
     public function hasSignedSmsContract(): bool
     {
-        if (!empty($this->attributes['sms_contract_accepted']) || !empty($this->attributes['sms_contract_accepted_at'])) {
+        if (!empty($this->attributes['sms_contract_accepted'])) {
             return true;
         }
-        $val = $this->settings()->where('key', 'sms_contract_accepted')->value('value');
-        if ($val) {
+        if ($this->hasSmsSignatureRecord()) {
             return true;
         }
         return ($this->status ?? 0) == 1;
@@ -561,15 +576,20 @@ class GhorfeOnlineList extends Model implements HasMedia
 
     public function getSmsContractAcceptedAtAttribute()
     {
-        return $this->attributes['sms_contract_accepted_at']
-            ?? $this->settings()->where('key', 'sms_contract_accepted_at')->value('value')
-            ?? ($this->hasSignedSmsContract() ? $this->created_at : null);
+        $line = $this->smsSignatureLine();
+        $verifiedAt = SmsSignatureRecord::parse($line?->description)['verified_at'] ?? null;
+
+        if ($verifiedAt) {
+            return \Carbon\Carbon::parse($verifiedAt);
+        }
+
+        return $line?->created_at ?? ($this->hasSignedSmsContract() ? $this->created_at : null);
     }
 
     public function getSmsContractSignatureNameAttribute()
     {
-        return $this->attributes['sms_contract_signature_name']
-            ?? $this->settings()->where('key', 'sms_contract_signature_name')->value('value')
-            ?? $this->title;
+        $name = SmsSignatureRecord::parse($this->smsSignatureLine()?->description)['name'] ?? '';
+
+        return $name !== '' ? $name : $this->title;
     }
 }

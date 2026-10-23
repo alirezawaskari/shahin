@@ -25,6 +25,8 @@ class Contract extends Model implements HasMedia
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('file')->useDisk('public')->singleFile();
+        // Staff files (up to 5, enforced by ContractMediaService, not here).
+        $this->addMediaCollection('staff_attachments')->useDisk('public');
     }
 
     public function getFileAttribute(): string

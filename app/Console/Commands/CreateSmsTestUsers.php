@@ -11,6 +11,7 @@ use App\Models\Role;
 use App\Models\SenderNumber;
 use App\Models\ShahinPackage;
 use App\Models\User;
+use App\Services\SmsSettings\SmsSignatureRecord;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -279,7 +280,7 @@ class CreateSmsTestUsers extends Command
         ?int $shahinPackageId,
         bool $smsContractAccepted
     ): GhorfeOnlineList {
-        return GhorfeOnlineList::updateOrCreate(
+        $business = GhorfeOnlineList::updateOrCreate(
             ['en_title' => $enTitle],
             [
                 'user_id' => $ownerId,
@@ -304,11 +305,15 @@ class CreateSmsTestUsers extends Command
                 'lat' => 35.7000000,
                 'lon' => 51.4000000,
                 'shahin_package_id' => $shahinPackageId,
-                'sms_contract_accepted' => $smsContractAccepted,
-                'sms_contract_accepted_at' => $smsContractAccepted ? now() : null,
-                'sms_contract_signature_name' => $smsContractAccepted ? 'تست خودکار QA' : null,
             ]
         );
+
+        // The SMS signing is a history line now (see SmsSignatureRecord); written once, so re-runs do not stack lines.
+        if ($smsContractAccepted && ! SmsSignatureRecord::lineFor($business)) {
+            SmsSignatureRecord::record($business, $ownerId, 'تست خودکار QA', null, now()->format(SmsSignatureRecord::TIME_FORMAT), null, 'تعهدنامه تستی');
+        }
+
+        return $business;
     }
 
     /**

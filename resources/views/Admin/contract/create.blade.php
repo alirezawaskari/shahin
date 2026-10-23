@@ -69,6 +69,21 @@
                     </div>
                     <br/>
                     <div class="col-12 col-md-10 mb-3">
+                        <label>فایل‌های مدیریت (حداکثر ۵ فایل - اختیاری)</label>
+                        <input type="file" name="staff_files[]" class="form-control form-control-sm" multiple
+                               accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                        <small class="text-muted">فرمت‌های مجاز: pdf، doc، docx، jpg، jpeg، png - حداکثر ۱۰ مگابایت برای هر فایل</small>
+                        @if($errors->has('staff_files'))
+                            <span class="help-block sub-error d-block">{{ $errors->first('staff_files') }}</span>
+                        @endif
+                        @foreach($errors->get('staff_files.*') as $fileErrors)
+                            @foreach($fileErrors as $fileError)
+                                <span class="help-block sub-error d-block">{{ $fileError }}</span>
+                            @endforeach
+                        @endforeach
+                    </div>
+                    <br/>
+                    <div class="col-12 col-md-10 mb-3">
                         <label>محتوا </label>
                         <textarea class="form-control" name="content" rows="5"
                                   cols="5" title="محتوا">{{old('content')}}</textarea>
