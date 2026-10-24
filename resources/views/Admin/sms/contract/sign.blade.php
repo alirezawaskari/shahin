@@ -14,6 +14,15 @@
         </div>
     </div>
 
+    {{-- Shown when staff disabled one of this business's SMS panels. --}}
+    @foreach(['otp', 'advertising'] as $noticeType)
+        @if(app(\App\Services\SmsSettings\SmsPanelAccess::class)->isDisabled($business, $noticeType))
+            <div class="alert alert-warning" role="alert">
+                پنل شما توسط مدیریت غیرفعال شده است. ({{ \App\Services\SmsSettings\SmsPanelAccess::label($noticeType) }})
+            </div>
+        @endif
+    @endforeach
+
     @if(session('warning'))
         <div class="alert alert-warning">{{ session('warning') }}</div>
     @endif
@@ -187,7 +196,7 @@
                                     <i class="fa fa-paperclip text-primary me-1"></i> پیوست مدارک، مجوزها یا مستندات احراز هویت و شرکت (حداکثر ۵ فایل - اختیاری)
                                 </label>
                                 <p class="text-muted small mb-2">فرمت‌های مجاز: PDF، تصاویر (JPG/PNG)، اسناد Word (حداکثر حجم هر فایل ۱۰ مگابایت)</p>
-                                <input type="file" name="client_attachments[]" id="clientAttachmentsInput" class="form-control form-control-sm" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                                <input type="file" name="client_attachments[]" id="clientAttachmentsInput" class="form-control form-control-sm" multiple data-file-picker data-notice-id="clientFileCountNotice" {!! \App\Services\V1\Admin\ContractMediaService::pickerAttributes() !!} accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
                                 <div id="clientFileCountNotice" class="small text-muted mt-1">حداکثر می‌توانید تا ۵ فایل را به‌صورت هم‌زمان انتخاب کنید.</div>
                             </div>
 
@@ -250,6 +259,7 @@
 @endsection
 
 @section('scripts')
+@include('Admin.contract.partials.file-picker')
 <script>
 (function () {
     var box = document.getElementById('otpBox');
@@ -330,25 +340,6 @@
             sendBtn.disabled = false;
         });
     });
-
-    // Validate max 5 client attachments
-    var fileInput = document.getElementById('clientAttachmentsInput');
-    var fileNotice = document.getElementById('clientFileCountNotice');
-    if (fileInput) {
-        fileInput.addEventListener('change', function () {
-            if (fileInput.files.length > 5) {
-                alert('حداکثر می‌توانید ۵ فایل پیوست انتخاب کنید.');
-                fileInput.value = '';
-                if (fileNotice) {
-                    fileNotice.className = 'small text-danger mt-1';
-                    fileNotice.textContent = 'تعداد فایل‌های انتخابی بیشتر از ۵ مورد بود و حذف شدند. لطفاً حداکثر ۵ فایل انتخاب کنید.';
-                }
-            } else if (fileNotice) {
-                fileNotice.className = 'small text-success mt-1';
-                fileNotice.textContent = fileInput.files.length + ' فایل برای بارگذاری انتخاب شد (حداکثر ۵ فایل).';
-            }
-        });
-    }
 
     // Auto-submit form when 6 digits are typed (matching platform pattern)
     otpInput.addEventListener('input', function () {

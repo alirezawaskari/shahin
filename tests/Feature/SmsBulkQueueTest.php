@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Exceptions\Sms\InsufficientBalanceException;
+use App\Exceptions\Sms\SmsPanelDisabledException;
+use App\Services\SmsSettings\SmsPanelAccess;
 use App\Models\GhorfeOnlineList;
 use App\Models\Groupsms;
 use App\Models\Setting;
@@ -519,5 +521,135 @@ class SmsBulkQueueTest extends TestCase
             ->assertOk()
             ->assertJsonPath('status', 'success')
             ->assertJsonPath('campaign.total_recipients', 3);
+    }
+
+    // ------------------------------------------------------------------
+    // Business panel switch: staff disabled one business's advertising panel
+    // ------------------------------------------------------------------
+
+    private function assertPanelRefused(callable $send): void
+    {
+        try {
+            $send();
+        } catch (SmsPanelDisabledException $e) {
+            $this->assertSame('advertising', $e->panelType);
+
+            return;
+        }
+
+        $this->fail('The send went through a disabled panel.');
+    }
+
+    private function disableAdvertisingPanel(GhorfeOnlineList $business): void
+    {
+        app(SmsPanelAccess::class)->disable($business, 'advertising', 'تست غیرفعال‌سازی پنل', $this->titaniumUser);
+    }
+
+    public function test_disabled_advertising_panel_refuses_bulk_ai_and_queue_saves_without_any_write(): void
+    {
+        $this->seedAdvertisingBalance($this->business->id, 50000);
+        $this->makeRecipients(2);
+
+        $dispatched = 0;
+        BulkSmsSendService::setGlobalGatewayDispatcher(function () use (&$dispatched) {
+            $dispatched++;
+        });
+        $this->disableAdvertisingPanel($this->business);
+        $groupsmsBefore = Groupsms::count();
+
+        $this->assertPanelRefused(fn () => $this->bulkSendService->createCampaign($this->payload(), $this->titaniumUser, $this->business));
+        $this->assertPanelRefused(fn () => $this->bulkSendService->saveToQueue($this->payload(), $this->titaniumUser, $this->business));
+        $this->assertPanelRefused(fn () => $this->bulkSendService->createCampaign(
+            $this->payload(['type' => 'ai', 'human_confirmed' => true]),
+            $this->titaniumUser,
+            $this->business
+        ));
+
+        $this->assertSame($groupsmsBefore, Groupsms::count());
+        $this->assertEquals(50000, (float) $this->business->fresh()->advertising_balance);
+        $this->assertSame(0, $dispatched);
+    }
+
+    public function test_queued_campaign_is_refused_when_the_panel_is_disabled_before_it_is_sent(): void
+    {
+        $this->seedAdvertisingBalance($this->business->id, 50000);
+        $this->makeRecipients(2);
+
+        $dispatched = 0;
+        BulkSmsSendService::setGlobalGatewayDispatcher(function () use (&$dispatched) {
+            $dispatched++;
+        });
+
+        $queued = $this->bulkSendService->saveToQueue($this->payload(), $this->titaniumUser, $this->business);
+        $this->disableAdvertisingPanel($this->business);
+
+        $this->assertPanelRefused(fn () => $this->bulkSendService->sendQueuedCampaign($queued, $this->titaniumUser, $this->business));
+
+        $this->assertSame(Groupsms::STATUS_PENDING_QUEUE, $queued->fresh()->status);
+        $this->assertEquals(50000, (float) $this->business->fresh()->advertising_balance);
+        $this->assertSame(0, $dispatched);
+    }
+
+    public function test_scheduled_campaign_fails_without_sending_when_its_panel_is_disabled_before_it_runs(): void
+    {
+        $this->seedAdvertisingBalance($this->business->id, 50000);
+        $this->makeRecipients(2);
+
+        $dispatched = 0;
+        BulkSmsSendService::setGlobalGatewayDispatcher(function () use (&$dispatched) {
+            $dispatched++;
+        });
+
+        $campaign = $this->bulkSendService->createCampaign(
+            $this->payload(['scheduled_at' => now()->addDay()->toDateTimeString()]),
+            $this->titaniumUser,
+            $this->business
+        );
+        $childrenAtSchedule = Groupsms::where('request_id', $campaign->id)->count();
+        $this->disableAdvertisingPanel($this->business);
+        $campaign->update(['scheduled_at' => now()->subMinute()]);
+
+        Artisan::call('sms:dispatch-due-campaigns');
+
+        $this->assertSame('failed', $campaign->fresh()->status);
+        $this->assertSame($childrenAtSchedule, Groupsms::where('request_id', $campaign->id)->count());
+        $this->assertSame(0, $dispatched);
+        $this->assertEquals(50000, (float) $this->business->fresh()->advertising_balance);
+    }
+
+    public function test_bulk_send_goes_through_again_once_the_panel_is_enabled(): void
+    {
+        $this->seedAdvertisingBalance($this->business->id, 50000);
+        $this->makeRecipients(2);
+
+        $dispatched = 0;
+        BulkSmsSendService::setGlobalGatewayDispatcher(function () use (&$dispatched) {
+            $dispatched++;
+        });
+
+        $this->disableAdvertisingPanel($this->business);
+        $this->assertPanelRefused(fn () => $this->bulkSendService->createCampaign($this->payload(), $this->titaniumUser, $this->business));
+
+        app(SmsPanelAccess::class)->enable($this->business, 'advertising', $this->titaniumUser);
+        $campaign = $this->bulkSendService->createCampaign($this->payload(), $this->titaniumUser, $this->business);
+
+        $this->assertSame('completed', $campaign->fresh()->status);
+        $this->assertSame(2, $dispatched);
+    }
+
+    public function test_the_switch_is_per_business_and_per_panel_type(): void
+    {
+        $this->disableAdvertisingPanel($this->business);
+
+        $service = app(SmsPanelAccess::class);
+        $this->assertTrue($service->isDisabled($this->business, 'advertising'));
+        $this->assertFalse($service->isDisabled($this->business, 'otp'));
+        $this->assertFalse($service->isDisabled($this->otherBusiness, 'advertising'));
+        $this->assertFalse($service->isDisabled($this->otherBusiness, 'otp'));
+
+        // The OTP panel of the same business still passes the gate.
+        $service->assertCanSend($this->business, 'otp');
+        $service->assertCanSend($this->otherBusiness, 'advertising');
+        $this->addToAssertionCount(2);
     }
 }

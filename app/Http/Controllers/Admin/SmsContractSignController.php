@@ -15,7 +15,6 @@ use App\Services\V1\Admin\ContractMediaService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
@@ -174,6 +173,7 @@ class SmsContractSignController extends Controller
             'client_attachments.max' => 'حداکثر ۵ فایل پیوست مجاز است.',
             'client_attachments.*.mimes' => 'فرمت فایل‌های پیوست باید pdf, doc, docx, jpg, jpeg یا png باشد.',
             'client_attachments.*.max' => 'حجم هر فایل پیوست نباید بیش از ۱۰ مگابایت باشد.',
+            'client_attachments.*.uploaded' => ContractMediaService::uploadFailedMessage(),
         ]);
 
         $contractText = $this->cmsContent->contractText();
@@ -187,7 +187,7 @@ class SmsContractSignController extends Controller
 
         try {
             DB::transaction(function () use ($request, $business, $validated, $verified, $contractText, $rulesText) {
-                $clientFiles = array_values(array_filter((array) $request->file('client_attachments', []), fn ($f) => $f instanceof UploadedFile));
+                $clientFiles = array_values(ContractMediaService::uploadedFilesOf($request->file('client_attachments', [])));
                 $this->files->storeClientFiles($business, $clientFiles);
 
                 // The signing record: one history line on the business + the exact text that was signed.
@@ -229,10 +229,11 @@ class SmsContractSignController extends Controller
             'replace.required' => 'فایلی برای بارگذاری مجدد انتخاب نشده است.',
             'replace.*.mimes' => 'فرمت فایل‌ها باید pdf, doc, docx, jpg, jpeg یا png باشد.',
             'replace.*.max' => 'حجم هر فایل نباید بیش از ۱۰ مگابایت باشد.',
+            'replace.*.uploaded' => ContractMediaService::uploadFailedMessage(),
         ]);
 
         try {
-            $this->files->reuploadRejected($business, $request->file('replace', []));
+            $this->files->reuploadRejected($business, ContractMediaService::uploadedFilesOf($request->file('replace', [])));
         } catch (ContractMediaException $e) {
             return redirect()->back()->withErrors(['replace' => $e->getMessage()]);
         }

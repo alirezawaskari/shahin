@@ -13,6 +13,7 @@ use App\Models\SmsLog;
 use App\Models\SmsTemplate;
 use App\Models\User;
 use Carbon\Carbon;
+use App\Services\SmsSettings\SmsPanelAccess;
 use DomainException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -289,6 +290,9 @@ class BulkSmsSendService
         $filters = $data['filters'] ?? [];
         $type = $data['type'] ?? 'bulk';
         $serviceType = $this->resolveServiceType($data);
+
+        // Covers the AI campaign launch too: it is created through this method. Nothing is created when refused.
+        app(SmsPanelAccess::class)->assertCanSend($business, $serviceType);
 
         if ($type === 'ai' && empty($data['human_confirmed'])) {
             throw new DomainException('ارسال کمپین هوش مصنوعی نیازمند تایید نهایی کاربر (Human Confirmation) می‌باشد.');
@@ -584,6 +588,7 @@ class BulkSmsSendService
         $filters = (array) ($data['filters'] ?? []);
 
         $serviceType = $this->resolveServiceType($data);
+        app(SmsPanelAccess::class)->assertCanSend($business, $serviceType);
 
         $this->accessTierService->assertCanQuery($actor, $filters, $recipientType, $business->id);
         $requiredTier = $this->accessTierService->getRequiredTier($filters, $recipientType, $business->id);
@@ -720,6 +725,8 @@ class BulkSmsSendService
             throw new DomainException('این مورد در صف ارسال یافت نشد.');
         }
 
+        app(SmsPanelAccess::class)->assertCanSend($business, $queued->service_type);
+
         // Claim the entry so a double click cannot send it twice; 'draft' = being processed.
         $claimed = Groupsms::whereKey($queued->id)
             ->where('status', Groupsms::STATUS_PENDING_QUEUE)
@@ -754,6 +761,15 @@ class BulkSmsSendService
      */
     protected function runCampaign(Groupsms $campaign): void
     {
+        // A scheduled campaign whose panel was disabled after it was created: it fails here, without sending.
+        $disabledBusiness = $campaign->business;
+        $disabledServiceType = $campaign->service_type === 'otp' ? 'otp' : 'advertising';
+        if ($disabledBusiness && app(SmsPanelAccess::class)->isDisabled($disabledBusiness, $disabledServiceType)) {
+            $campaign->update(['status' => 'failed']);
+            Log::warning("Bulk Campaign #{$campaign->id} not sent: the business {$disabledServiceType} panel is disabled.");
+            return;
+        }
+
         $campaign->update(['status' => 'sending']);
 
         $serviceType = $campaign->service_type === 'otp' ? 'otp' : 'advertising';

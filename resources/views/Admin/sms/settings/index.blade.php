@@ -71,7 +71,7 @@
                             <i class="fa fa-file-text-o" style="color: #38bdf8 !important; margin-left: 8px;"></i> قراردادها، تعهدنامه و ضوابط
                         </h6>
                         <p class="small mb-3" style="color: #94a3b8 !important; font-size: 13px; line-height: 1.7;">
-                            مدیریت الگوها و انتساب قراردادها، ویرایش ضوابط مخابراتی و مشاهده وضعیت امضای OTP غرفه‌ها.
+                            مدیریت الگوی قرارداد و انتساب قراردادها، ویرایش ضوابط مخابراتی و مشاهده وضعیت امضای OTP غرفه‌ها.
                         </p>
                     </div>
                     <a href="{{ route('admin.sms.settings.contracts.index') }}" class="btn btn-sm w-100" style="background-color: rgba(255,255,255,0.08) !important; color: #ffffff !important; border: 1px solid rgba(255,255,255,0.2) !important;">

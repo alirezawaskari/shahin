@@ -70,7 +70,7 @@
                     <br/>
                     <div class="col-12 col-md-10 mb-3">
                         <label>فایل‌های مدیریت (حداکثر ۵ فایل - اختیاری)</label>
-                        <input type="file" name="staff_files[]" class="form-control form-control-sm" multiple
+                        <input type="file" name="staff_files[]" class="form-control form-control-sm" multiple data-file-picker {!! \App\Services\V1\Admin\ContractMediaService::pickerAttributes() !!}
                                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
                         <small class="text-muted">فرمت‌های مجاز: pdf، doc، docx، jpg، jpeg، png - حداکثر ۱۰ مگابایت برای هر فایل</small>
                         @if($errors->has('staff_files'))
@@ -106,5 +106,6 @@
 
 @stop
 @section('js')
+@include('Admin.contract.partials.file-picker')
 
 @stop

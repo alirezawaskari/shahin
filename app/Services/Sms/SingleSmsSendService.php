@@ -15,6 +15,7 @@ use App\Models\SmsTemplate;
 use App\Models\User;
 use App\Services\Settings\SettingsService;
 use Carbon\Carbon;
+use App\Services\SmsSettings\SmsPanelAccess;
 use DomainException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -373,6 +374,9 @@ class SingleSmsSendService
 
         $creator = $creator ?? auth()->user();
         $serviceType = $data['service_type'] ?? 'advertising';
+
+        // Refused before anything is created when staff disabled this business's panel for the service type.
+        app(SmsPanelAccess::class)->assertCanSend($business, $serviceType);
 
         // 0. OTP messages carry exactly one fixed system category; promotional ones never do.
         $otpCategory = $serviceType === 'otp' ? $this->resolveOtpCategory($data) : null;

@@ -18,4 +18,7 @@ Route::group([
     // Staff review of a client file of a business (super admin only, checked in the controller): approve, or reject with a reason.
     Route::post('/files/{media}/approve', [SmsSettingsContractController::class, 'approveFile'])->name('files.approve');
     Route::post('/files/{media}/reject', [SmsSettingsContractController::class, 'rejectFile'])->name('files.reject');
+    // Staff switch for one business's SMS panel (super admin only, checked in the controller).
+    Route::post('/panels/{business}/{type}/disable', [SmsSettingsContractController::class, 'disablePanel'])->whereNumber('business')->where('type', 'otp|advertising')->name('panels.disable');
+    Route::post('/panels/{business}/{type}/enable', [SmsSettingsContractController::class, 'enablePanel'])->whereNumber('business')->where('type', 'otp|advertising')->name('panels.enable');
 });

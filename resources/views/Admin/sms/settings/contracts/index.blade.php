@@ -30,14 +30,14 @@
                 </form>
             @endif
             @if(auth()->user()?->isSuperAdmin())
-                <a href="{{ url('/dashboard/contract') }}" class="btn btn-outline-secondary btn-sm" title="مرکز اصلی مدیریت قراردادها و الگوهای سامانه">
+                <a href="{{ url('/dashboard/contract') }}" class="btn btn-outline-secondary btn-sm" title="مرکز اصلی مدیریت قراردادها و الگوهای قرارداد سامانه">
                     <i class="fa fa-folder-open me-1"></i> مرکز اصلی قراردادها
                 </a>
                 <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal" data-bs-target="#legalContentModal">
                     <i class="fa fa-balance-scale me-1"></i> ویرایش متون حقوقی و ضوابط
                 </button>
                 <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#templatesModal">
-                    <i class="fa fa-files-o me-1"></i> الگوها و قراردادهای عمومی
+                    <i class="fa fa-files-o me-1"></i> الگوهای قرارداد و قراردادهای عمومی
                 </button>
                 <button type="button" class="btn btn-primary btn-sm open-assign-modal"
                         data-service-type="otp"
@@ -103,16 +103,16 @@
                         @if($otpContractUsage && $otpContractUsage->contract)
                             <button type="button" class="btn btn-sm btn-light border view-contract-btn"
                                     data-title="{{ $otpContractUsage->contract->title }}"
-                                    data-panel="پنل خدماتی (OTP) — الگوی عمومی"
+                                    data-panel="پنل خدماتی (OTP) — الگوی قرارداد عمومی"
                                     data-number="{{ $otpContractUsage->contract_number ?: '—' }}"
                                     data-date="{{ $otpContractUsage->contract_date ? verta($otpContractUsage->contract_date)->format('Y/m/d') : '—' }}"
                                     data-content="{{ $otpContractUsage->contract->content ?: 'بدون متن (فایل پیوست)' }}"
-                                    data-signer="الگوی پایه سامانه">
+                                    data-signer="الگوی قرارداد پایه سامانه">
                                 <i class="fa fa-eye"></i> مشاهده
                             </button>
                         @endif
                         <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#templatesModal">
-                            مدیریت الگو
+                            مدیریت الگوی قرارداد
                         </button>
                     </div>
                 </div>
@@ -136,16 +136,16 @@
                         @if($advContractUsage && $advContractUsage->contract)
                             <button type="button" class="btn btn-sm btn-light border view-contract-btn"
                                     data-title="{{ $advContractUsage->contract->title }}"
-                                    data-panel="پنل عادی و تبلیغاتی — الگوی عمومی"
+                                    data-panel="پنل عادی و تبلیغاتی — الگوی قرارداد عمومی"
                                     data-number="{{ $advContractUsage->contract_number ?: '—' }}"
                                     data-date="{{ $advContractUsage->contract_date ? verta($advContractUsage->contract_date)->format('Y/m/d') : '—' }}"
                                     data-content="{{ $advContractUsage->contract->content ?: 'بدون متن (فایل پیوست)' }}"
-                                    data-signer="الگوی پایه سامانه">
+                                    data-signer="الگوی قرارداد پایه سامانه">
                                 <i class="fa fa-eye"></i> مشاهده
                             </button>
                         @endif
                         <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#templatesModal">
-                            مدیریت الگو
+                            مدیریت الگوی قرارداد
                         </button>
                     </div>
                 </div>
@@ -208,7 +208,7 @@
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link fw-bold" id="tab-bank-btn" data-bs-toggle="tab" data-bs-target="#pane-bank" type="button" role="tab">
-                        <i class="fa fa-folder-open text-primary me-1"></i> بانک قراردادها و الگوهای پیامک ({{ $bankContracts->count() }})
+                        <i class="fa fa-folder-open text-primary me-1"></i> بانک قراردادها و الگوهای قرارداد ({{ $bankContracts->count() }})
                     </button>
                 </li>
             </ul>
@@ -255,7 +255,7 @@
                                             @if($specOtp && $specOtp->contract)
                                                 <span class="badge bg-primary">قرارداد اختصاصی</span>
                                             @elseif($otpContractUsage && $otpContractUsage->contract)
-                                                <span class="badge bg-light text-dark border">الگوی عمومی پنل</span>
+                                                <span class="badge bg-light text-dark border">الگوی قرارداد عمومی پنل</span>
                                             @else
                                                 <span class="badge bg-secondary">فاقد قرارداد</span>
                                             @endif
@@ -303,6 +303,7 @@
                                                             </button>
                                                         </form>
                                                     @endif
+                                                    @include('Admin.sms.settings.contracts.partials.panel-switch', ['biz' => $biz, 'panelType' => 'otp'])
                                                 @endif
                                             </div>
                                         </td>
@@ -354,7 +355,7 @@
                                             @if($specAdv && $specAdv->contract)
                                                 <span class="badge bg-success">قرارداد اختصاصی</span>
                                             @elseif($advContractUsage && $advContractUsage->contract)
-                                                <span class="badge bg-light text-dark border">الگوی عمومی پنل</span>
+                                                <span class="badge bg-light text-dark border">الگوی قرارداد عمومی پنل</span>
                                             @else
                                                 <span class="badge bg-secondary">فاقد قرارداد</span>
                                             @endif
@@ -402,6 +403,7 @@
                                                             </button>
                                                         </form>
                                                     @endif
+                                                    @include('Admin.sms.settings.contracts.partials.panel-switch', ['biz' => $biz, 'panelType' => 'advertising'])
                                                 @endif
                                             </div>
                                         </td>
@@ -420,7 +422,7 @@
                 <div class="tab-pane fade" id="pane-bank" role="tabpanel">
                     <div class="p-3 bg-light border-bottom d-flex justify-content-between align-items-center">
                         <div>
-                            <span class="text-muted small">قراردادها و الگوهای ثبت‌شده در ماژول اصلی قراردادهای سامانه</span>
+                            <span class="text-muted small">قراردادها و الگوهای قرارداد ثبت‌شده در ماژول اصلی قراردادهای سامانه</span>
                         </div>
                         <div class="d-flex gap-2">
                             <a href="/dashboard/contract/create" class="btn btn-sm btn-primary">
@@ -436,7 +438,7 @@
                             <thead class="table-light">
                                 <tr>
                                     <th class="ps-3">#</th>
-                                    <th>عنوان قرارداد / الگو</th>
+                                    <th>عنوان قرارداد / الگوی قرارداد</th>
                                     <th>پوشه</th>
                                     <th>نوع</th>
                                     <th>وضعیت</th>
@@ -511,6 +513,14 @@
          BUSINESS USER VIEW: READ-ONLY CONTRACTS, LEGAL RULES & SIGN-READY OTP BOX
          (No external links, no new tabs, read-only or sign-ready right here)
     ========================================================================= -->
+    {{-- Shown to the business when staff disabled one of its panels. --}}
+    @foreach(['otp', 'advertising'] as $noticeType)
+        @if(app(\App\Services\SmsSettings\SmsPanelAccess::class)->isDisabled($business, $noticeType))
+            <div class="alert alert-warning py-2 small" role="alert">
+                پنل شما توسط مدیریت غیرفعال شده است. ({{ \App\Services\SmsSettings\SmsPanelAccess::label($noticeType) }})
+            </div>
+        @endif
+    @endforeach
     @php
         $effOtpBiz = $businessOtpUsage ?: $otpContractUsage;
         $effAdvBiz = $businessAdvUsage ?: $advContractUsage;
@@ -667,7 +677,7 @@
                                     <i class="fa fa-paperclip text-primary me-1"></i> پیوست مدارک، مجوزها یا مستندات احراز هویت و شرکت (حداکثر ۵ فایل - اختیاری)
                                 </label>
                                 <p class="text-muted small mb-2">فرمت‌های مجاز: PDF، تصاویر (JPG/PNG)، اسناد Word (حداکثر حجم هر فایل ۱۰ مگابایت)</p>
-                                <input type="file" name="client_attachments[]" id="clientIndexAttachmentsInput" class="form-control form-control-sm" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                                <input type="file" name="client_attachments[]" id="clientIndexAttachmentsInput" class="form-control form-control-sm" multiple data-file-picker data-notice-id="clientIndexFileNotice" {!! \App\Services\V1\Admin\ContractMediaService::pickerAttributes() !!} accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
                                 <div id="clientIndexFileNotice" class="small text-muted mt-1">حداکثر می‌توانید تا ۵ فایل را به‌صورت هم‌زمان انتخاب فرمایید.</div>
                             </div>
 
@@ -781,13 +791,13 @@
 
 @if(auth()->user()?->isSuperAdmin())
 <!-- =========================================================================
-     POPUP 2: TEMPLATES & GENERAL CONTRACTS MODAL (الگوها و قراردادهای عمومی)
+     POPUP 2: TEMPLATES & GENERAL CONTRACTS MODAL (الگوهای قرارداد و قراردادهای عمومی)
 ========================================================================= -->
 <div class="modal fade" id="templatesModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title fw-bold">الگوها و قراردادهای عمومی پنل‌ها</h5>
+                <h5 class="modal-title fw-bold">الگوهای قرارداد و قراردادهای عمومی پنل‌ها</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
             </div>
             <div class="modal-body">
@@ -812,9 +822,9 @@
                                 <input type="hidden" name="mode" value="existing">
                                 <input type="hidden" name="is_global_template" value="1">
                                 <div class="col-8">
-                                    <label class="form-label small text-muted mb-1">انتخاب الگوی پیش‌فرض پنل OTP</label>
+                                    <label class="form-label small text-muted mb-1">انتخاب الگوی قرارداد پیش‌فرض پنل OTP</label>
                                     <select name="contract_id" class="form-select form-select-sm" required>
-                                        <option value="">— انتخاب الگو از بانک —</option>
+                                        <option value="">— انتخاب الگوی قرارداد از بانک —</option>
                                         @foreach($bankContracts as $bc)
                                             <option value="{{ $bc->id }}" {{ $otpContractUsage?->contract_id === $bc->id ? 'selected' : '' }}>
                                                 {{ $bc->title }}
@@ -823,7 +833,7 @@
                                     </select>
                                 </div>
                                 <div class="col-4">
-                                    <button type="submit" class="btn btn-primary btn-sm w-100">تنظیم الگو</button>
+                                    <button type="submit" class="btn btn-primary btn-sm w-100">تنظیم الگوی قرارداد</button>
                                 </div>
                             </form>
                         </div>
@@ -844,9 +854,9 @@
                                 <input type="hidden" name="mode" value="existing">
                                 <input type="hidden" name="is_global_template" value="1">
                                 <div class="col-8">
-                                    <label class="form-label small text-muted mb-1">انتخاب الگوی پیش‌فرض پنل تبلیغاتی</label>
+                                    <label class="form-label small text-muted mb-1">انتخاب الگوی قرارداد پیش‌فرض پنل تبلیغاتی</label>
                                     <select name="contract_id" class="form-select form-select-sm" required>
-                                        <option value="">— انتخاب الگو از بانک —</option>
+                                        <option value="">— انتخاب الگوی قرارداد از بانک —</option>
                                         @foreach($bankContracts as $bc)
                                             <option value="{{ $bc->id }}" {{ $advContractUsage?->contract_id === $bc->id ? 'selected' : '' }}>
                                                 {{ $bc->title }}
@@ -855,13 +865,13 @@
                                     </select>
                                 </div>
                                 <div class="col-4">
-                                    <button type="submit" class="btn btn-success btn-sm w-100">تنظیم الگو</button>
+                                    <button type="submit" class="btn btn-success btn-sm w-100">تنظیم الگوی قرارداد</button>
                                 </div>
                             </form>
                         </div>
 
                         <!-- Existing Templates List -->
-                        <h6 class="fw-bold mb-2 mt-4">فهرست الگوهای موجود ({{ $bankContracts->count() }})</h6>
+                        <h6 class="fw-bold mb-2 mt-4">فهرست الگوهای قرارداد موجود ({{ $bankContracts->count() }})</h6>
                         <div class="border rounded" style="max-height: 220px; overflow-y: auto;">
                             <ul class="list-group list-group-flush small">
                                 @forelse($bankContracts as $bc)
@@ -875,7 +885,7 @@
                                         <span class="text-muted font-monospace">#{{ $bc->id }}</span>
                                     </li>
                                 @empty
-                                    <li class="list-group-item text-center text-muted py-3">هنوز الگویی ثبت نشده است.</li>
+                                    <li class="list-group-item text-center text-muted py-3">هنوز الگوی قراردادی ثبت نشده است.</li>
                                 @endforelse
                             </ul>
                         </div>
@@ -883,7 +893,7 @@
 
                     <!-- Right Column: Create New Template / Contract -->
                     <div class="col-12 col-lg-7 border-end">
-                        <h6 class="fw-bold mb-3">ایجاد الگو / قرارداد جدید</h6>
+                        <h6 class="fw-bold mb-3">ایجاد الگوی قرارداد / قرارداد جدید</h6>
                         <form action="{{ route('admin.sms.settings.contracts.store') }}" method="POST" enctype="multipart/form-data" id="createTemplateOrContractForm">
                             @csrf
                             <input type="hidden" name="mode" value="new">
@@ -892,7 +902,7 @@
 
                             <div class="row g-3 mb-3">
                                 <div class="col-12 col-md-6">
-                                    <label class="form-label fw-bold small">عنوان الگو / قرارداد <span class="text-danger">*</span></label>
+                                    <label class="form-label fw-bold small">عنوان الگوی قرارداد / قرارداد <span class="text-danger">*</span></label>
                                     <input type="text" name="title" class="form-control" placeholder="مثال: تعهدنامه پیامک خدماتی ۱۴۰۵" required>
                                 </div>
                                 <div class="col-12 col-md-6">
@@ -903,7 +913,7 @@
                                     </select>
                                 </div>
                                 <div class="col-12 col-md-6" id="tplFolderGroup">
-                                    <label class="form-label fw-bold small">پوشه الگو</label>
+                                    <label class="form-label fw-bold small">پوشه الگوی قرارداد</label>
                                     <select name="contract_folder_id" class="form-select">
                                         @foreach($folders as $fid => $ftitle)
                                             <option value="{{ $fid }}">{{ $ftitle }}</option>
@@ -911,14 +921,14 @@
                                     </select>
                                 </div>
                                 <div class="col-12 col-md-6">
-                                    <label class="form-label fw-bold small">شماره الگو / قرارداد</label>
+                                    <label class="form-label fw-bold small">شماره الگوی قرارداد / قرارداد</label>
                                     <input type="text" name="contract_number" class="form-control" placeholder="مثال: TPL-OTP-01">
                                 </div>
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label fw-bold small">متن الگو / قرارداد <span class="text-danger">*</span></label>
-                                <textarea name="content" class="form-control" rows="6" placeholder="متن رسمی قرارداد یا الگو را وارد کنید..." required></textarea>
+                                <label class="form-label fw-bold small">متن الگوی قرارداد / قرارداد <span class="text-danger">*</span></label>
+                                <textarea name="content" class="form-control" rows="6" placeholder="متن رسمی قرارداد یا الگوی قرارداد را وارد کنید..." required></textarea>
                             </div>
 
                             <div class="mb-3">
@@ -931,7 +941,7 @@
                                 <div class="form-check mb-2">
                                     <input class="form-check-input" type="checkbox" name="save_as_template" id="tplSaveAsTemplateCheck" value="1" checked>
                                     <label class="form-check-label fw-bold small" for="tplSaveAsTemplateCheck">
-                                        ذخیره به‌عنوان الگو در بانک الگوها (اختیاری)
+                                        ذخیره به‌عنوان الگوی قرارداد در بانک الگوهای قرارداد (اختیاری)
                                     </label>
                                 </div>
                                 <div>
@@ -944,7 +954,7 @@
                                     </select>
                                 </div>
                                 <div id="tplAtLeastOneError" class="text-danger small mt-2" style="display: none;">
-                                    لطفاً حداقل یکی از دو گزینه «ذخیره به‌عنوان الگو» یا «انتساب به کسب‌وکار» را انتخاب کنید.
+                                    لطفاً حداقل یکی از دو گزینه «ذخیره به‌عنوان الگوی قرارداد» یا «انتساب به کسب‌وکار» را انتخاب کنید.
                                 </div>
                             </div>
 
@@ -1000,7 +1010,7 @@
                         <div class="d-flex flex-wrap gap-4">
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="mode" id="assignModeExisting" value="existing" checked>
-                                <label class="form-check-label small" for="assignModeExisting">انتساب از الگوهای موجود</label>
+                                <label class="form-check-label small" for="assignModeExisting">انتساب از الگوهای قرارداد موجود</label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="mode" id="assignModeNew" value="new">
@@ -1011,9 +1021,9 @@
 
                     <!-- Option A: Select from existing templates -->
                     <div id="assignExistingSection" class="mb-3">
-                        <label class="form-label fw-bold small">انتخاب الگو / قرارداد <span class="text-danger">*</span></label>
+                        <label class="form-label fw-bold small">انتخاب الگوی قرارداد / قرارداد <span class="text-danger">*</span></label>
                         <select name="contract_id" class="form-select">
-                            <option value="">— انتخاب از فهرست الگوها —</option>
+                            <option value="">— انتخاب از فهرست الگوهای قرارداد —</option>
                             @foreach($bankContracts as $bc)
                                 <option value="{{ $bc->id }}">{{ $bc->title }} (#{{ $bc->id }})</option>
                             @endforeach
@@ -1037,7 +1047,7 @@
                         <div class="form-check mb-3">
                             <input class="form-check-input" type="checkbox" name="save_as_template" id="saveAsTemplateCheck" value="1">
                             <label class="form-check-label small" for="saveAsTemplateCheck">
-                                این قرارداد به‌عنوان الگو نیز در بانک الگوها ذخیره شود (در صورت عدم انتخاب، صرفاً به همین کسب‌وکار منتسب می‌شود)
+                                این قرارداد به‌عنوان الگوی قرارداد نیز در بانک الگوهای قرارداد ذخیره شود (در صورت عدم انتخاب، صرفاً به همین کسب‌وکار منتسب می‌شود)
                             </label>
                         </div>
                     </div>
@@ -1059,7 +1069,7 @@
                             <i class="fa fa-paperclip text-primary me-1"></i> پیوست مدارک و مستندات اداری / مخابراتی مدیریت (حداکثر ۵ فایل - اختیاری)
                         </label>
                         <p class="text-muted small mb-2">مدارک تایید اپراتور، استعلامات یا معرفی‌نامه‌ها (PDF، تصویر یا Word حداکثر ۱۰ مگابایت)</p>
-                        <input type="file" name="staff_attachments[]" id="staffAttachmentsInput" class="form-control form-control-sm" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                        <input type="file" name="staff_attachments[]" id="staffAttachmentsInput" class="form-control form-control-sm" multiple data-file-picker data-notice-id="staffFileCountNotice" {!! \App\Services\V1\Admin\ContractMediaService::pickerAttributes() !!} accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
                         <div id="staffFileCountNotice" class="small text-muted mt-1">حداکثر می‌توانید تا ۵ فایل را به‌صورت هم‌زمان انتخاب فرمایید.</div>
                     </div>
                 </div>
@@ -1115,6 +1125,7 @@
 
 {{-- Scripts live outside the Vue-compiled #app root (inline <script> inside it is dropped). --}}
 @section('scripts')
+@include('Admin.contract.partials.file-picker')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     // Read-Only Contract Viewer Modal
@@ -1224,44 +1235,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     });
-
-    // Staff attachments 5-file validator
-    const staffFileInput = document.getElementById('staffAttachmentsInput');
-    const staffFileNotice = document.getElementById('staffFileCountNotice');
-    if (staffFileInput) {
-        staffFileInput.addEventListener('change', function () {
-            if (staffFileInput.files.length > 5) {
-                alert('حداکثر می‌توانید ۵ فایل پیوست انتخاب فرمایید.');
-                staffFileInput.value = '';
-                if (staffFileNotice) {
-                    staffFileNotice.className = 'small text-danger mt-1';
-                    staffFileNotice.textContent = 'تعداد فایل‌های انتخابی بیش از ۵ مورد بود و حذف شدند. لطفاً حداکثر ۵ فایل انتخاب نمایید.';
-                }
-            } else if (staffFileNotice) {
-                staffFileNotice.className = 'small text-success mt-1';
-                staffFileNotice.textContent = staffFileInput.files.length + ' فایل جهت بارگذاری انتخاب گردید (حداکثر ۵ فایل).';
-            }
-        });
-    }
-
-    // Client attachments 5-file validator in business view
-    const clientIndexFileInput = document.getElementById('clientIndexAttachmentsInput');
-    const clientIndexFileNotice = document.getElementById('clientIndexFileNotice');
-    if (clientIndexFileInput) {
-        clientIndexFileInput.addEventListener('change', function () {
-            if (clientIndexFileInput.files.length > 5) {
-                alert('حداکثر می‌توانید ۵ فایل پیوست انتخاب فرمایید.');
-                clientIndexFileInput.value = '';
-                if (clientIndexFileNotice) {
-                    clientIndexFileNotice.className = 'small text-danger mt-1';
-                    clientIndexFileNotice.textContent = 'تعداد فایل‌های انتخابی بیش از ۵ مورد بود و حذف شدند. لطفاً حداکثر ۵ فایل انتخاب نمایید.';
-                }
-            } else if (clientIndexFileNotice) {
-                clientIndexFileNotice.className = 'small text-success mt-1';
-                clientIndexFileNotice.textContent = clientIndexFileInput.files.length + ' فایل جهت بارگذاری انتخاب گردید (حداکثر ۵ فایل).';
-            }
-        });
-    }
 
     // Assign Contract Modal
     const assignModalEl = document.getElementById('assignContractModal');

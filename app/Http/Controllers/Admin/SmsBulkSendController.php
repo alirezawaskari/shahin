@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Exceptions\Sms\InsufficientBalanceException;
+use App\Exceptions\Sms\SmsPanelDisabledException;
+use App\Services\SmsSettings\SmsPanelAccess;
 use App\Exceptions\Sms\TierAccessDeniedException;
 use App\Helpers\FilterHelper;
 use App\Http\Controllers\Controller;
@@ -245,6 +247,12 @@ class SmsBulkSendController extends Controller
         $recipientType = $this->recipientTypeFor($user);
         $serviceType = $this->bulkSmsSendService->resolveServiceType($request->all());
         $filters = (array) $request->input('filters', []);
+
+        try {
+            app(SmsPanelAccess::class)->assertCanSend($business, $serviceType);
+        } catch (SmsPanelDisabledException $e) {
+            return response()->json(['status' => 'error', 'error_type' => 'panel_disabled', 'message' => $e->getMessage()], 403);
+        }
 
         if ($serviceType === 'otp' && !$this->accessTierService->canUseOtp($user)) {
             return response()->json([

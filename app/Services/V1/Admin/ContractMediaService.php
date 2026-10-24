@@ -36,6 +36,95 @@ class ContractMediaService
         return ['file', 'mimes:' . implode(',', self::EXTENSIONS), 'max:' . self::MAX_KILOBYTES];
     }
 
+    /**
+     * Persian `uploaded` message for every media field, with the server's real per-file limit. PHP drops a
+     * file larger than upload_max_filesize and reports it as failed; Laravel's `file` rule then fails with
+     * this message instead of the English default.
+     *
+     * @param  string[]  $fields  e.g. ['staff_files']; the wildcard key is added for each.
+     * @return array<string, string>
+     */
+    public static function uploadMessages(array $fields): array
+    {
+        $messages = [];
+        foreach ($fields as $field) {
+            $messages[$field . '.*.uploaded'] = self::uploadFailedMessage();
+        }
+
+        return $messages;
+    }
+
+    /**
+     * Data attributes for the shared file picker (resources/views/Admin/contract/partials/file-picker.blade.php):
+     * the per-file and per-request limits the server really enforces, read from php.ini.
+     */
+    public static function pickerAttributes(int $maxFiles = self::STAFF_LIMIT, int $existingFiles = 0): string
+    {
+        return sprintf(
+            'data-max-files="%d" data-max-file-bytes="%d" data-upload-max-bytes="%d" data-post-max-bytes="%d" data-existing-files="%d"',
+            $maxFiles,
+            self::MAX_KILOBYTES * 1024,
+            self::iniBytes(ini_get('upload_max_filesize')),
+            self::iniBytes(ini_get('post_max_size')),
+            max(0, $existingFiles),
+        );
+    }
+
+    public static function uploadFailedMessage(): string
+    {
+        return 'بارگذاری فایل ناموفق بود؛ حجم فایل از حد مجاز سرور (' . self::serverFileLimitLabel() . ') بیشتر است.';
+    }
+
+    /** The server's per-file limit from php.ini, as Persian text, e.g. «۲ مگابایت». */
+    public static function serverFileLimitLabel(): string
+    {
+        $megabytes = intdiv(self::iniBytes(ini_get('upload_max_filesize')), 1024 * 1024);
+
+        return strtr((string) $megabytes, ['0' => '۰', '1' => '۱', '2' => '۲', '3' => '۳', '4' => '۴', '5' => '۵', '6' => '۶', '7' => '۷', '8' => '۸', '9' => '۹']) . ' مگابایت';
+    }
+
+    /** A php.ini size value ("2M", "256M", "1G", "512") in bytes. */
+    public static function iniBytes(string|false $value): int
+    {
+        $value = trim((string) $value);
+        $number = (int) $value;
+
+        return match (strtolower(substr($value, -1))) {
+            'g' => $number * 1024 ** 3,
+            'm' => $number * 1024 ** 2,
+            'k' => $number * 1024,
+            default => $number,
+        };
+    }
+
+    /**
+     * The files of one media input as they reached the server. Anything that is not a file is refused as a
+     * validation error. Nothing is dropped, so a failed upload can never reach the media services as
+     * "no file".
+     *
+     * Keys are kept (the replace[<media id>] form posts one file per key).
+     *
+     * @return array<array-key, UploadedFile>
+     */
+    public static function uploadedFilesOf(mixed $input): array
+    {
+        if ($input === null || $input === []) {
+            return [];
+        }
+
+        if (! is_array($input)) {
+            throw new ContractMediaException('invalid', 'فایل ارسالی معتبر نیست.');
+        }
+
+        foreach ($input as $file) {
+            if (! $file instanceof UploadedFile) {
+                throw new ContractMediaException('invalid', 'فایل ارسالی معتبر نیست.');
+            }
+        }
+
+        return $input;
+    }
+
     /** True when a business that has signed this contract is using it (location-wide usages never lock). */
     public function isStaffLocked(Contract $contract): bool
     {
@@ -109,7 +198,9 @@ class ContractMediaService
     public function assertFile(UploadedFile $file): void
     {
         if (! $file->isValid()) {
-            throw new ContractMediaException('invalid', 'فایل ارسالی معتبر نیست.');
+            $tooLarge = in_array($file->getError(), [UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE], true);
+
+            throw new ContractMediaException('invalid', $tooLarge ? self::uploadFailedMessage() : 'بارگذاری فایل ناموفق بود. فایل را دوباره انتخاب کنید.');
         }
 
         if (! in_array(strtolower($file->getClientOriginalExtension()), self::EXTENSIONS, true)) {

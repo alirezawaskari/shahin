@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Exceptions\Sms\InsufficientBalanceException;
+use App\Exceptions\Sms\SmsPanelDisabledException;
+use App\Services\SmsSettings\SmsPanelAccess;
 use App\Models\GhorfeOnlineList;
 use App\Models\Groupsms;
 use App\Models\History;
@@ -866,5 +868,81 @@ class SmsSingleSendTest extends TestCase
 
         $this->assertSame(1, Groupsms::count());
         $this->assertSame(1, Groupsms::where('recipient_phone', '09123334455')->count());
+    }
+
+    // ------------------------------------------------------------------
+    // Business panel switch
+    // ------------------------------------------------------------------
+
+    public function test_disabled_advertising_panel_refuses_a_single_send_and_writes_nothing(): void
+    {
+        $this->seedAdvertisingBalance($this->business->id, 10000.00);
+        app(SmsPanelAccess::class)->disable($this->business, 'advertising', 'تست', $this->panelSwitchUser());
+
+        $dispatched = false;
+        $this->service->setGatewayDispatcher(function () use (&$dispatched) {
+            $dispatched = true;
+        });
+        $before = Groupsms::count();
+
+        try {
+            $this->service->send([
+                'recipient_phone' => '09351234567',
+                'message' => 'تخفیف ویژه نوروزی',
+                'service_type' => 'advertising',
+                'sender_number_id' => $this->advSender->id,
+            ], $this->business);
+            $this->fail('A disabled advertising panel must not send.');
+        } catch (SmsPanelDisabledException $e) {
+            $this->assertSame('advertising', $e->panelType);
+        }
+
+        $this->assertSame($before, Groupsms::count());
+        $this->assertFalse($dispatched);
+        $this->assertEquals(10000.00, (float) $this->business->fresh()->advertising_balance);
+    }
+
+    public function test_disabled_otp_panel_is_refused_before_the_otp_category_is_checked(): void
+    {
+        app(SmsPanelAccess::class)->disable($this->business, 'otp', 'تست', $this->panelSwitchUser());
+
+        $this->expectException(SmsPanelDisabledException::class);
+
+        $this->service->send([
+            'recipient_phone' => '09351234567',
+            'message' => 'کد تایید: 123456',
+            'service_type' => 'otp',
+        ], $this->business);
+    }
+
+    public function test_single_send_goes_through_again_once_the_panel_is_enabled(): void
+    {
+        $this->seedAdvertisingBalance($this->business->id, 10000.00);
+        $this->service->setGatewayDispatcher(fn () => null);
+
+        app(SmsPanelAccess::class)->disable($this->business, 'advertising', 'تست', $this->panelSwitchUser());
+        try {
+            $this->service->send(['recipient_phone' => '09351234567', 'message' => 'تست', 'service_type' => 'advertising', 'sender_number_id' => $this->advSender->id], $this->business);
+            $this->fail('A disabled advertising panel must not send.');
+        } catch (SmsPanelDisabledException) {
+            // expected
+        }
+
+        app(SmsPanelAccess::class)->enable($this->business, 'advertising', $this->panelSwitchUser());
+        $message = $this->service->send([
+            'recipient_phone' => '09351234567',
+            'message' => 'تخفیف ویژه نوروزی',
+            'service_type' => 'advertising',
+            'sender_number_id' => $this->advSender->id,
+            'auto_append_cancel' => true,
+        ], $this->business);
+
+        $this->assertNotNull($message->id);
+        $this->assertEquals(8800.00, (float) $this->business->fresh()->advertising_balance);
+    }
+
+    private function panelSwitchUser(): User
+    {
+        return User::create(['name' => 'مدیر', 'family' => 'سامانه', 'phone' => '09120009999', 'level' => 'superAdmin', 'active' => true]);
     }
 }

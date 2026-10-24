@@ -212,7 +212,7 @@ class SmsContractService
 
         if (!$saveAsTemplate && !$ownerId && !$isGlobalTemplate) {
             throw ValidationException::withMessages([
-                'business_id' => ['باید حداقل یکی از دو گزینه «ذخیره به‌عنوان الگو» یا «انتساب به کسب‌وکار» انتخاب شود.'],
+                'business_id' => ['باید حداقل یکی از دو گزینه «ذخیره به‌عنوان الگوی قرارداد» یا «انتساب به کسب‌وکار» انتخاب شود.'],
             ]);
         }
 
@@ -222,9 +222,11 @@ class SmsContractService
             ]);
         }
 
-        $staffFiles = is_array($staffAttachments)
-            ? array_values(array_filter($staffAttachments, fn ($f) => $f instanceof UploadedFile))
-            : [];
+        try {
+            $staffFiles = array_values(ContractMediaService::uploadedFilesOf($staffAttachments));
+        } catch (ContractMediaException $e) {
+            throw ValidationException::withMessages(['staff_attachments' => [$e->getMessage()]]);
+        }
         // Refused before anything is created, so a bad batch leaves no template copy or rows behind.
         $this->assertStaffFiles($staffFiles);
 

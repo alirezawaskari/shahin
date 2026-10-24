@@ -226,7 +226,7 @@
             @unless($staffLocked)
                 <form method="post" action="{{ route('contract.staffFiles.store', $contract->id) }}" enctype="multipart/form-data">
                     {{ csrf_field() }}
-                    <input type="file" name="staff_files[]" class="form-control form-control-sm mb-2" multiple
+                    <input type="file" name="staff_files[]" class="form-control form-control-sm mb-2" multiple data-file-picker {!! \App\Services\V1\Admin\ContractMediaService::pickerAttributes(\App\Services\V1\Admin\ContractMediaService::STAFF_LIMIT, $contract->getMedia('staff_attachments')->count()) !!}
                            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
                     <small class="text-muted d-block mb-2">فرمت‌های مجاز: pdf، doc، docx، jpg، jpeg، png - حداکثر ۱۰ مگابایت برای هر فایل</small>
                     @if($errors->has('staff_files'))
@@ -240,5 +240,6 @@
 
 @stop
 @section('js')
+@include('Admin.contract.partials.file-picker')
 
 @stop

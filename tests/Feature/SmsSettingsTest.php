@@ -13,6 +13,7 @@ use App\Services\Sms\DynamicParameterResolver;
 use App\Services\SmsSettings\SmsContractService;
 use App\Services\SmsSettings\SmsMessageGroupService;
 use App\Services\SmsSettings\SmsMessageTemplateService;
+use App\Services\SmsSettings\SmsPanelAccess;
 use App\Services\SmsSettings\SmsPanelService;
 use App\Services\SmsSettings\SmsSenderNumberService;
 use DomainException;
@@ -646,5 +647,172 @@ class SmsSettingsTest extends TestCase
         $this->assertArrayHasKey('regulatoryRulesText', $viewData);
         $this->assertArrayHasKey('contractText', $viewData);
         $this->assertArrayHasKey('otpPhoneMasked', $viewData);
+    }
+
+    /**
+     * The picker library must come after </main> (the Vue-compiled content drops scripts and re-renders
+     * the nodes), and the file inputs must be inside it.
+     */
+    private function assertPickerOutsideContent(string $html): void
+    {
+        $mainEnd = strpos($html, '</main>');
+        $this->assertNotFalse($mainEnd, 'The layout has no <main> content area.');
+
+        $marker = 'window.ContractFilePicker = { ensure';
+        $this->assertSame(1, substr_count($html, $marker), 'The picker library must be printed exactly once.');
+        $this->assertGreaterThan($mainEnd, strpos($html, $marker), 'The picker library is inside the Vue content.');
+
+        $this->assertLessThan($mainEnd, strpos($html, 'data-file-picker'), 'The picker input is outside the content area.');
+    }
+
+    /**
+     * Renders the SMS contracts page through the test-only layout (see tests/Fixtures/views/Admin/master.blade.php).
+     * Super admin: the staff list with the assign popup. Business user: the business view with the client-files input.
+     */
+    private function renderContractsPage(bool $asBusinessUser = false): string
+    {
+        // The page body, its @include and its sections render unchanged; only the admin layout is swapped and
+        // its composers are skipped for this test.
+        app('view')->getFinder()->prependLocation(base_path('tests/Fixtures/views'));
+        app('events')->forget('composing: Admin.master');
+        view()->share('errors', new \Illuminate\Support\ViewErrorBag());
+
+        if ($asBusinessUser) {
+            // Not signed yet: the flag, a signing line and the legacy status = 1 are all cleared, so the sign-ready box shows.
+            DB::table('ghorfe_online_lists')->where('id', $this->businessA->id)->update(['sms_contract_accepted' => false, 'status' => false]);
+            $user = User::create(['name' => 'کاربر', 'family' => 'کسب‌وکار', 'phone' => '09123330001', 'level' => 'ghorfeAdmin', 'active' => true]);
+            DB::table('employees')->insert(['user_id' => $user->id, 'ghorfe_online_list_id' => $this->businessA->id]);
+            $this->actingAs($user);
+            // The sidebar menu reads category_permissions, which this fixture does not build: an empty cached menu
+            // (MenuService's key for this user at menu version 0) is what the layout would get anyway.
+            \Illuminate\Support\Facades\Cache::put('menu_user_' . $user->id . '_0', [], 60);
+        } else {
+            $this->actingAs($this->adminUser);
+            \Illuminate\Support\Facades\Cache::put('menu_super_admin_0', [], 60);
+        }
+
+        return app(\App\Http\Controllers\Admin\SmsSettings\SmsContractController::class)
+            ->index(request())
+            ->render();
+    }
+
+    public function test_contract_page_says_contract_template_not_bare_template(): void
+    {
+        $html = $this->renderContractsPage();
+
+        // «الگو» on the contract page means a contract template, so it must not collide with SMS templates.
+        $this->assertStringNotContainsString('الگوهای پیامک', $html);
+        $this->assertStringNotContainsString('الگوی پیش‌فرض پنل OTP', $html);
+        $this->assertStringContainsString('الگوهای قرارداد', $html);
+        $this->assertStringContainsString('بانک قراردادها و الگوهای قرارداد', $html);
+        $this->assertStringContainsString('تنظیم الگوی قرارداد', $html);
+    }
+
+    public function test_contract_page_wires_the_shared_file_picker_on_both_upload_inputs(): void
+    {
+        // Business view: the client-files input (business user, not yet signed).
+        $business = $this->renderContractsPage(true);
+        $this->assertStringContainsString('name="client_attachments[]" id="clientIndexAttachmentsInput" class="form-control form-control-sm" multiple data-file-picker data-notice-id="clientIndexFileNotice"', $business);
+        $this->assertStringContainsString('data-upload-max-bytes="', $business);
+        $this->assertStringContainsString('data-post-max-bytes="', $business);
+        $this->assertStringContainsString('data-max-files="5"', $business);
+        $this->assertStringNotContainsString('clientIndexFileInput.files.length > 5', $business);
+        $this->assertPickerOutsideContent($business);
+
+        // Super admin: the staff files input of the assign popup.
+        $admin = $this->renderContractsPage();
+        $this->assertStringContainsString('name="staff_attachments[]" id="staffAttachmentsInput"', $admin);
+        $this->assertStringContainsString('data-file-picker data-notice-id="staffFileCountNotice"', $admin);
+        $this->assertStringNotContainsString('staffFileInput.files.length > 5', $admin);
+        $this->assertPickerOutsideContent($admin);
+    }
+
+    public function test_business_contract_page_says_contract_template_not_bare_template(): void
+    {
+        $html = $this->renderContractsPage(true);
+
+        $this->assertStringNotContainsString('الگوهای پیامک', $html);
+        $this->assertStringNotContainsString('الگوی پیش‌فرض پنل OTP', $html);
+    }
+
+    // ==========================================
+    // BUSINESS PANEL SWITCH (super admin only)
+    // ==========================================
+
+    private function panelSwitchUrl(string $action, string $type, ?GhorfeOnlineList $business = null): string
+    {
+        return route('admin.sms.contract.panels.' . $action, ['business' => ($business ?? $this->businessA)->id, 'type' => $type]);
+    }
+
+    public function test_only_the_super_admin_can_disable_or_enable_a_business_panel(): void
+    {
+        $businessUser = User::create([
+            'name' => 'کاربر', 'family' => 'کسب‌وکار', 'phone' => '09123330002', 'level' => 'ghorfeAdmin', 'active' => true,
+        ]);
+        DB::table('employees')->insert(['user_id' => $businessUser->id, 'ghorfe_online_list_id' => $this->businessA->id]);
+        $this->actingAs($businessUser);
+
+        $this->post($this->panelSwitchUrl('disable', 'advertising'), ['reason' => 'تست'])->assertForbidden();
+        $this->post($this->panelSwitchUrl('enable', 'advertising'))->assertForbidden();
+
+        $this->assertFalse(app(SmsPanelAccess::class)->isDisabled($this->businessA, 'advertising'));
+    }
+
+    public function test_disabling_needs_a_reason_and_enabling_restores_the_panel(): void
+    {
+        $this->actingAs($this->adminUser);
+        $service = app(SmsPanelAccess::class);
+
+        $this->post($this->panelSwitchUrl('disable', 'advertising'), ['reason' => ''])->assertSessionHasErrors('reason');
+        $this->assertFalse($service->isDisabled($this->businessA, 'advertising'));
+
+        $this->post($this->panelSwitchUrl('disable', 'advertising'), ['reason' => 'مغایرت با قرارداد'])->assertRedirect();
+        $state = $service->state($this->businessA, 'advertising');
+        $this->assertTrue($state['disabled']);
+        $this->assertSame('مغایرت با قرارداد', $state['reason']);
+        $this->assertSame($this->adminUser->id, $state['by_id']);
+        $this->assertNotNull($state['at']);
+        $this->assertFalse($service->isDisabled($this->businessA, 'otp'));
+
+        $this->post($this->panelSwitchUrl('enable', 'advertising'))->assertRedirect();
+        $this->assertFalse($service->isDisabled($this->businessA, 'advertising'));
+        $this->assertNull($service->state($this->businessA, 'advertising')['reason']);
+    }
+
+    public function test_unknown_panel_type_is_not_found(): void
+    {
+        $this->actingAs($this->adminUser);
+
+        $this->post('/dashboard/sms/contract/panels/' . $this->businessA->id . '/sms/disable', ['reason' => 'تست'])->assertNotFound();
+    }
+
+    public function test_staff_see_the_disabled_badge_and_the_business_sees_the_notice(): void
+    {
+        app(SmsPanelAccess::class)->disable($this->businessA, 'advertising', 'تست', $this->adminUser);
+
+        $staff = $this->renderContractsPage();
+        $this->assertStringContainsString('پنل غیرفعال', $staff);
+        $this->assertStringContainsString('فعال‌سازی پنل', $staff);
+
+        $business = $this->renderContractsPage(true);
+        $this->assertStringContainsString('پنل شما توسط مدیریت غیرفعال شده است.', $business);
+        $this->assertStringContainsString('(تبلیغاتی)', $business);
+    }
+
+    public function test_settings_overview_says_contract_template_not_bare_template(): void
+    {
+        $this->actingAs($this->adminUser);
+        \Illuminate\Support\Facades\Cache::put('menu_super_admin_0', [], 60);
+        app('view')->getFinder()->prependLocation(base_path('tests/Fixtures/views'));
+        app('events')->forget('composing: Admin.master');
+        view()->share('errors', new \Illuminate\Support\ViewErrorBag());
+
+        $html = app(\App\Http\Controllers\Admin\SmsSettings\SmsSettingsController::class)
+            ->index(request())
+            ->render();
+
+        // The contracts card says «الگوی قرارداد», never the bare «الگو» that collides with SMS templates.
+        $this->assertStringContainsString('مدیریت الگوی قرارداد و انتساب قراردادها', $html);
+        $this->assertStringNotContainsString('مدیریت الگوها و انتساب قراردادها', $html);
     }
 }

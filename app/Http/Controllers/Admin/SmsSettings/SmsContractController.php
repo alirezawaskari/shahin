@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\SmsSettings;
 
 use App\Exceptions\ContractMediaException;
+use App\Services\V1\Admin\ContractMediaService;
 use App\Models\Media;
 use App\Http\Controllers\Controller;
 use App\Models\Contract;
@@ -11,6 +12,7 @@ use App\Models\ContractUsage;
 use App\Models\GhorfeOnlineList;
 use App\Services\SmsSettings\SmsContractFilesService;
 use App\Services\SmsSettings\SmsContractService;
+use App\Services\SmsSettings\SmsPanelAccess;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -135,11 +137,13 @@ class SmsContractController extends Controller
         ], [
             'service_type.required' => 'نوع سرویس قرارداد را مشخص کنید.',
             'mode.required' => 'نحوه انتساب قرارداد را مشخص کنید.',
-            'contract_id.required_if' => 'الگو یا قرارداد مورد نظر را انتخاب کنید.',
-            'title.required_if' => 'عنوان قرارداد یا الگو را وارد کنید.',
+            'contract_id.required_if' => 'الگوی قرارداد یا قرارداد مورد نظر را انتخاب کنید.',
+            'title.required_if' => 'عنوان قرارداد یا الگوی قرارداد را وارد کنید.',
             'staff_attachments.max' => 'حداکثر ۵ فایل پیوست مجاز است.',
             'staff_attachments.*.mimes' => 'فرمت فایل‌های پیوست باید pdf, doc, docx, jpg, jpeg یا png باشد.',
             'staff_attachments.*.max' => 'حجم هر فایل پیوست نباید بیش از ۱۰ مگابایت باشد.',
+            'staff_attachments.*.uploaded' => ContractMediaService::uploadFailedMessage(),
+            'file.uploaded' => ContractMediaService::uploadFailedMessage(),
         ]);
 
         $serviceType = $validated['service_type'];
@@ -260,5 +264,50 @@ class SmsContractController extends Controller
         );
 
         return $media;
+    }
+
+    /**
+     * Staff switch for one business's SMS panel. Refused for everyone but the super admin, the same guard as
+     * the contract management above. A reason is required to disable; nothing is sent or deleted by it.
+     * The business is taken by id: its route key is the slug, and the panel URLs use the id.
+     */
+    public function disablePanel(Request $request, int $business, string $type): RedirectResponse
+    {
+        $this->assertPanelSwitchAllowed($type);
+        $business = GhorfeOnlineList::query()->findOrFail($business);
+
+        $validated = $request->validate([
+            'reason' => 'required|string|min:3|max:500',
+        ], [
+            'reason.required' => 'دلیل غیرفعال‌سازی پنل را وارد کنید.',
+            'reason.min' => 'دلیل غیرفعال‌سازی پنل باید حداقل ۳ نویسه باشد.',
+            'reason.max' => 'دلیل غیرفعال‌سازی پنل نباید بیش از ۵۰۰ نویسه باشد.',
+        ]);
+
+        app(SmsPanelAccess::class)->disable($business, $type, $validated['reason'], auth()->user());
+
+        return redirect()->back()->with('success', 'پنل ' . SmsPanelAccess::label($type) . ' «' . $business->title . '» غیرفعال شد.');
+    }
+
+    /** Enables a business's SMS panel again. Only the super admin, as above. */
+    public function enablePanel(Request $request, int $business, string $type): RedirectResponse
+    {
+        $this->assertPanelSwitchAllowed($type);
+        $business = GhorfeOnlineList::query()->findOrFail($business);
+
+        app(SmsPanelAccess::class)->enable($business, $type, auth()->user());
+
+        return redirect()->back()->with('success', 'پنل ' . SmsPanelAccess::label($type) . ' «' . $business->title . '» فعال شد.');
+    }
+
+    private function assertPanelSwitchAllowed(string $type): void
+    {
+        if (!auth()->user()?->isSuperAdmin()) {
+            abort(403, 'غیرفعال‌سازی پنل پیامک کسب‌وکارها منحصراً در اختیار مدیریت ارشد سامانه است.');
+        }
+
+        if (!in_array($type, SmsPanelAccess::TYPES, true)) {
+            abort(404);
+        }
     }
 }

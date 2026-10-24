@@ -37,6 +37,7 @@ class ContractController extends Controller
             'staff_files.max' => 'حداکثر ۵ فایل مدیریت مجاز است.',
             'staff_files.*.mimes' => 'فرمت فایل‌ها باید pdf, doc, docx, jpg, jpeg یا png باشد.',
             'staff_files.*.max' => 'حجم هر فایل نباید بیش از ۱۰ مگابایت باشد.',
+            'staff_files.*.uploaded' => ContractMediaService::uploadFailedMessage(),
         ];
     }
     /**
