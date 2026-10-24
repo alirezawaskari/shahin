@@ -133,7 +133,6 @@
                             @if(auth()->user()?->isSuperAdmin())
                                 <th scope="col" class="py-3">کسب‌وکارهای مشترک (منتسب)</th>
                             @endif
-                            <th scope="col" class="py-3">وضعیت قرارداد خط</th>
                             @if(auth()->user()?->isSuperAdmin())
                                 <th scope="col" class="text-end pe-3 py-3">عملیات</th>
                             @endif
@@ -221,17 +220,6 @@
                                         @endif
                                     </td>
                                 @endif
-                                <td>
-                                    @php
-                                        $cStatus = $sender->contract_status ?: 'در انتظار تایید تعهدنامه';
-                                        $isApproved = ($cStatus === 'تایید شده');
-                                        $isRejected = str_contains($cStatus, 'رد شده');
-                                    @endphp
-                                    <span class="badge {{ $isApproved ? 'bg-success' : ($isRejected ? 'bg-danger' : 'bg-warning text-dark') }} px-2 py-1">
-                                        <i class="fa {{ $isApproved ? 'fa-check' : ($isRejected ? 'fa-times' : 'fa-clock-o') }} me-1"></i>
-                                        {{ $cStatus }}
-                                    </span>
-                                </td>
                                 @if(auth()->user()?->isSuperAdmin())
                                     <td class="text-end pe-3">
                                         <div class="btn-group btn-group-sm">

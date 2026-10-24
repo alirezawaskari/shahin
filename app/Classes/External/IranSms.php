@@ -17,36 +17,47 @@ class IranSms
      * @return void
      * @throws GuzzleException
      */
-    public static function sendSingleSms($phone , string $message): void
+    public static function sendSingleSms($phone, string $message, ?array $connectionInfo = null, ?string $sender = null): void
     {
+        $apiKey = !empty($connectionInfo['api_key']) ? $connectionInfo['api_key'] : config('services.iranSms.apikey');
         $headers = [
-            'apikey' => config('services.iranSms.apikey'),
+            'apikey' => $apiKey,
             'Content-Type' => 'application/x-www-form-urlencoded'
         ];
-        $client = new Client( [
+        $client = new Client([
             'headers' => $headers
-        ] );
+        ]);
+
+        $resolvedSender = $sender
+            ?: (!empty($connectionInfo['line_number']) ? $connectionInfo['line_number'] : self::resolveSender());
 
         $body = [
-            //30005006003675
-            'sender' => self::resolveSender(),
-            'receptor' => config('app.test_status')? config('app.test_true_sms_to'):$phone,
+            'sender' => $resolvedSender,
+            'receptor' => config('app.test_status') ? config('app.test_true_sms_to') : $phone,
             'message' => $message
         ];
-        $client->request( 'POST', 'http://api.parsasms.com/v2/sms/send/bulk2', [
+
+        $baseUrl = !empty($connectionInfo['base_url']) ? rtrim($connectionInfo['base_url'], '/') : 'http://api.parsasms.com';
+        $endpoint = str_contains($baseUrl, '/sms/send') ? $baseUrl : $baseUrl . '/v2/sms/send/bulk2';
+
+        $client->request('POST', $endpoint, [
             'form_params' => $body
-        ] );
+        ]);
     }
     /**
-     * @return string
+     * @return mixed
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public static function fetchCredit()
+    public static function fetchCredit(?array $connectionInfo = null)
     {
+        $apiKey = !empty($connectionInfo['api_key']) ? $connectionInfo['api_key'] : config('services.iranSms.apikey');
+        $baseUrl = !empty($connectionInfo['base_url']) ? rtrim($connectionInfo['base_url'], '/') : 'http://api.ghasedaksms.com';
+        $endpoint = str_contains($baseUrl, '/credit') ? $baseUrl : $baseUrl . '/v2/credit';
+
         $client = new Client();
-        $response = $client->request('POST', 'http://api.ghasedaksms.com/v2/credit', [
+        $response = $client->request('POST', $endpoint, [
             'headers' => [
-                'apikey' =>config('services.iranSms.apikey'),
+                'apikey' => $apiKey,
             ]
         ]);
 

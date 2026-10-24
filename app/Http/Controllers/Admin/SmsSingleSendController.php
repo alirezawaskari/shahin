@@ -58,12 +58,14 @@ class SmsSingleSendController extends Controller
     {
         $business = $this->resolveBusiness($request);
 
-        // System-wide active OTP sender number (singleton)
-        $otpSender = Setting::query()
-            ->where('type', 'otp')
+        // System-wide active OTP sender line directly from OTP panel (or legacy line)
+        $otpSender = Setting::where('key', 'sms_panel')
+            ->whereIn('type', ['otp', 'all'])
             ->where('status', 'active')
-            ->first()
-            ?? Setting::where('key', 'sms_sender_number')->first()
+            ->get()
+            ->first(fn($p) => !empty($p->number))
+            ?? Setting::otp()->where('status', 'active')->first()
+            ?? Setting::where('key', 'sms_sender_number')->where('type', 'otp')->first()
             ?? Setting::where('key', 'iranSms_linenumber')->first();
 
         // OTP Balance for current business
@@ -72,10 +74,20 @@ class SmsSingleSendController extends Controller
             $otpBalance = (float) ($business->otp_balance ?? 0);
         }
 
-        // Advertising sender numbers assigned to this business with balances
+        // Advertising sender lines directly from panels or assigned lines
         $advertisingNumbers = collect();
         if ($business) {
-            $advertisingNumbers = Setting::query()
+            $panelLines = Setting::where('key', 'sms_panel')
+                ->whereIn('type', ['advertising', 'normal-advertising', 'all'])
+                ->where('status', 'active')
+                ->where(function ($sub) use ($business) {
+                    $sub->where('settingable_id', $business->id)
+                        ->orWhereNull('settingable_id');
+                })
+                ->get();
+
+            $dedicatedSenders = Setting::query()
+                ->whereIn('key', ['sms_sender_number', 'sender_number'])
                 ->where(function ($q) use ($business) {
                     $q->where(function ($sub) use ($business) {
                         $sub->where('settingable_type', GhorfeOnlineList::class)
@@ -86,11 +98,15 @@ class SmsSingleSendController extends Controller
                 })
                 ->where('type', 'advertising')
                 ->where('status', 'active')
-                ->get()
+                ->get();
+
+            $advertisingNumbers = $panelLines->concat($dedicatedSenders)
+                ->filter(fn($sender) => !empty($sender->number))
                 ->map(function ($sender) use ($business) {
                     $sender->current_balance = (float) ($business->advertising_balance ?? 0);
                     return $sender;
-                });
+                })
+                ->values();
         }
 
         if ($advertisingNumbers->isEmpty()) {

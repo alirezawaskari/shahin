@@ -83,24 +83,47 @@
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
-                            <label class="form-label fw-bold">کلید وب‌سرویس (API Key / Token)</label>
-                            <input type="password" name="connection_info[api_key]" class="form-control font-monospace" value="{{ old('connection_info.api_key', $panel->getConnectionSetting('api_key')) }}">
+                            <label class="form-label fw-bold">نوع وب‌سرویس / درایور <span class="text-danger">*</span></label>
+                            <select name="connection_info[driver]" id="panelDriverSelect" class="form-select">
+                                <option value="iransms" {{ old('connection_info.driver', $panel->getConnectionSetting('driver', 'iransms')) === 'iransms' ? 'selected' : '' }}>ایران پیامک / پارسا پیامک (REST API - ApiKey)</option>
+                                <option value="neginsms" {{ old('connection_info.driver', $panel->getConnectionSetting('driver')) === 'neginsms' ? 'selected' : '' }}>نگین پیامک / هما سیستم (SOAP WSDL - PortalCode)</option>
+                                <option value="custom" {{ old('connection_info.driver', $panel->getConnectionSetting('driver')) === 'custom' ? 'selected' : '' }}>سایر / سفارشی</option>
+                            </select>
+                            <small class="text-muted">پروتکل و درایور اتصال سیستم به ارائه‌دهنده را مشخص کنید.</small>
                         </div>
 
-                        <div class="row g-3 mb-3">
+                        <div class="mb-3" id="portalCodeGroup">
+                            <label class="form-label fw-bold">کد پرتال (Portal Code)</label>
+                            <input type="text" name="connection_info[portal_code]" class="form-control font-monospace" placeholder="مثال: 10002239" value="{{ old('connection_info.portal_code', $panel->getConnectionSetting('portal_code', $panel->getConnectionSetting('portalcode'))) }}">
+                            <small class="text-muted">مخصوص وب‌سرویس نگین پیامک (Homais SOAP).</small>
+                        </div>
+
+                        <div class="mb-3" id="apiKeyGroup">
+                            <label class="form-label fw-bold">کلید وب‌سرویس (API Key / Token)</label>
+                            <input type="password" name="connection_info[api_key]" class="form-control font-monospace" placeholder="apikey or token" value="{{ old('connection_info.api_key', $panel->getConnectionSetting('api_key')) }}">
+                            <small class="text-muted">مخصوص وب‌سرویس ایران پیامک / پارسا پیامک (REST API).</small>
+                        </div>
+
+                        <div class="row g-3 mb-3" id="userPassGroup">
                             <div class="col-6">
                                 <label class="form-label fw-bold">نام کاربری</label>
-                                <input type="text" name="connection_info[username]" class="form-control font-monospace" value="{{ old('connection_info.username', $panel->getConnectionSetting('username')) }}">
+                                <input type="text" name="connection_info[username]" class="form-control font-monospace" placeholder="username" value="{{ old('connection_info.username', $panel->getConnectionSetting('username')) }}">
                             </div>
                             <div class="col-6">
                                 <label class="form-label fw-bold">کلمه عبور</label>
-                                <input type="password" name="connection_info[password]" class="form-control font-monospace" value="{{ old('connection_info.password', $panel->getConnectionSetting('password')) }}">
+                                <input type="password" name="connection_info[password]" class="form-control font-monospace" placeholder="password" value="{{ old('connection_info.password', $panel->getConnectionSetting('password')) }}">
                             </div>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label fw-bold">آدرس وب‌سرویس (Base URL / Endpoint)</label>
-                            <input type="url" name="connection_info[base_url]" class="form-control font-monospace" value="{{ old('connection_info.base_url', $panel->getConnectionSetting('base_url')) }}">
+                            <label class="form-label fw-bold">شماره خط اختصاصی در وب‌سرویس (اختیاری)</label>
+                            <input type="text" name="connection_info[line_number]" class="form-control font-monospace" placeholder="مثال: 10002622" value="{{ old('connection_info.line_number', $panel->getConnectionSetting('line_number')) }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">آدرس وب‌سرویس (Base URL / Endpoint / WSDL)</label>
+                            <input type="url" name="connection_info[base_url]" class="form-control font-monospace" placeholder="http://api.parsasms.com یا https://dev.homais.com/..." value="{{ old('connection_info.base_url', $panel->getConnectionSetting('base_url')) }}">
+                            <small class="text-muted">در صورت خالی بودن، آدرس رسمی پیش‌فرض درایور فراخوانی می‌شود.</small>
                         </div>
                     </div>
                 </div>

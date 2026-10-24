@@ -176,8 +176,13 @@ class SmsBulkSendController extends Controller
         $otpSender = null;
         $otpBalance = 0.0;
         if ($canUseOtp) {
-            $otpSender = Setting::query()->where('type', 'otp')->where('status', 'active')->first()
-                ?? Setting::where('key', 'sms_sender_number')->first()
+            $otpSender = Setting::where('key', 'sms_panel')
+                ->whereIn('type', ['otp', 'all'])
+                ->where('status', 'active')
+                ->get()
+                ->first(fn($p) => !empty($p->number))
+                ?? Setting::otp()->where('status', 'active')->first()
+                ?? Setting::where('key', 'sms_sender_number')->where('type', 'otp')->first()
                 ?? Setting::where('key', 'iranSms_linenumber')->first();
             $otpBalance = (float) ($business->otp_balance ?? 0);
         }

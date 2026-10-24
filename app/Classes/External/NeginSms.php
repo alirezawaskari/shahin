@@ -16,16 +16,24 @@ class NeginSms
      * @param $service_type
      * @return mixed
      */
-    public static function sendSingleSms(string $message, $phone, $service_type)
+    public static function sendSingleSms(string $message, $phone, $service_type = 'single', ?array $connectionInfo = null)
     {
-        $client = new nusoap_client('https://dev.homais.com/services/sms/index.asmx?wsdl', array('encoding'=>'UTF-8'));
-        $parameters['PortalCode'] = config('services.neginSms.portalcode'); //portal code
-        $parameters['UserName'] = config('services.neginSms.username');//username
-        $parameters['PassWord'] = config('services.neginSms.password'); //password
-        $parameters['Mobile'] = $phone; //phone number
-        $parameters['Message'] = $message;//message
-        $parameters['ServerType'] = $service_type; //server type
-        return $client->singleSMS($parameters)->singleSMSResult; //return result
+        $wsdl = !empty($connectionInfo['base_url']) ? $connectionInfo['base_url'] : 'https://dev.homais.com/services/sms/index.asmx?wsdl';
+        $client = new nusoap_client($wsdl, array('encoding'=>'UTF-8'));
+
+        $portalCode = !empty($connectionInfo['portal_code'])
+            ? $connectionInfo['portal_code']
+            : (!empty($connectionInfo['portalcode']) ? $connectionInfo['portalcode'] : config('services.neginSms.portalcode'));
+        $username = !empty($connectionInfo['username']) ? $connectionInfo['username'] : config('services.neginSms.username');
+        $password = !empty($connectionInfo['password']) ? $connectionInfo['password'] : config('services.neginSms.password');
+
+        $parameters['PortalCode'] = $portalCode;
+        $parameters['UserName'] = $username;
+        $parameters['PassWord'] = $password;
+        $parameters['Mobile'] = $phone;
+        $parameters['Message'] = $message;
+        $parameters['ServerType'] = $service_type;
+        return $client->singleSMS($parameters)->singleSMSResult;
     }
 
 

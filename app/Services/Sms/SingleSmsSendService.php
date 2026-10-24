@@ -179,7 +179,7 @@ class SingleSmsSendService
                     $sub->whereNull('settingable_id');
                 });
             })
-            ->where('type', 'advertising')
+            ->whereIn('type', ['advertising', 'normal-advertising', 'all'])
             ->where('status', 'active');
     }
 
@@ -203,10 +203,16 @@ class SingleSmsSendService
 
             // OTP sends NEVER allow a sender-number override.
             // Always resolve the active OTP system sender number.
-            $otpSender = Setting::query()
-                ->where('type', 'otp')
+            $otpSender = Setting::where('key', 'sms_panel')
+                ->whereIn('type', ['otp', 'all'])
                 ->where('status', 'active')
-                ->first();
+                ->get()
+                ->first(fn($p) => !empty($p->number))
+                ?? Setting::otp()->where('status', 'active')->first()
+                ?? Setting::query()
+                    ->where('type', 'otp')
+                    ->where('status', 'active')
+                    ->first();
 
             if (!$otpSender) {
                 throw new DomainException('هیچ شماره فعال ارسال OTP در سیستم ثبت نشده است.');
@@ -225,7 +231,7 @@ class SingleSmsSendService
                     $sub->whereNull('settingable_id');
                 });
             })
-            ->where('type', 'advertising')
+            ->whereIn('type', ['advertising', 'normal-advertising', 'all'])
             ->where('status', 'active');
 
         if ($requestedSenderNumberId) {
@@ -313,7 +319,7 @@ class SingleSmsSendService
     /**
      * Dispatch the message to the external gateway (IranSms or NeginSms).
      */
-    public function dispatchToGateway(string $smsPanel, string $phone, string $message): void
+    public function dispatchToGateway(string $smsPanel, string $phone, string $message, ?string $senderNumber = null): void
     {
         if ($this->gatewayDispatcher !== null) {
             ($this->gatewayDispatcher)($smsPanel, $phone, $message);
@@ -325,10 +331,20 @@ class SingleSmsSendService
             return;
         }
 
-        if (strtolower($smsPanel) === 'neginsms') {
-            NeginSms::sendSingleSms($message, $phone, 'single');
+        $panel = Setting::where('key', 'sms_panel')
+            ->where(function ($q) use ($smsPanel) {
+                $q->where('name', $smsPanel)
+                    ->orWhere('slug', $smsPanel)
+                    ->orWhere('slug', Str::slug($smsPanel));
+            })->first();
+
+        $connectionInfo = $panel?->connection_info ?? [];
+        $driver = strtolower($connectionInfo['driver'] ?? $panel?->name ?? $smsPanel);
+
+        if ($driver === 'neginsms') {
+            NeginSms::sendSingleSms($message, $phone, 'single', $connectionInfo);
         } else {
-            IranSms::sendSingleSms($phone, $message);
+            IranSms::sendSingleSms($phone, $message, $connectionInfo, $senderNumber);
         }
     }
 
@@ -504,7 +520,8 @@ class SingleSmsSendService
                 $this->dispatchToGateway(
                     $senderNumber->sms_panel ?? 'IranSms',
                     $recipientPhone,
-                    $finalContent
+                    $finalContent,
+                    $senderNumber->number ?? null
                 );
                 $smsMessage->update(['status' => 'sent']);
             } catch (\Throwable $e) {

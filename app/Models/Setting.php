@@ -306,7 +306,18 @@ class Setting extends Model
             return $val;
         }
         $decoded = json_decode($this->value, true);
-        return is_array($decoded) ? ($decoded['number'] ?? $this->value) : $this->value;
+        if (is_array($decoded)) {
+            if (!empty($decoded['number'])) {
+                return $decoded['number'];
+            }
+            if ($this->key === 'sms_panel') {
+                return $decoded['connection_info']['line_number']
+                    ?? $decoded['send_settings']['default_sender']
+                    ?? null;
+            }
+            return null;
+        }
+        return $this->key === 'sms_sender_number' || $this->key === 'iranSms_linenumber' ? $this->value : null;
     }
 
     public function getTypeAttribute($val)
@@ -345,6 +356,9 @@ class Setting extends Model
     {
         if ($val !== null && $val !== '') {
             return $val;
+        }
+        if ($this->key === 'sms_panel') {
+            return $this->name ?? 'IranSms';
         }
         $decoded = json_decode($this->value, true);
         return is_array($decoded) ? ($decoded['sms_panel'] ?? 'IranSms') : 'IranSms';
@@ -438,12 +452,24 @@ class Setting extends Model
 
     public function scopeOtp($query)
     {
-        return $query->where('key', 'sms_sender_number')->where('type', 'otp');
+        return $query->where(function ($q) {
+            $q->where(function ($sub) {
+                $sub->where('key', 'sms_panel')->whereIn('type', ['otp', 'all'])->whereNotNull('number');
+            })->orWhere(function ($sub) {
+                $sub->where('key', 'sms_sender_number')->where('type', 'otp');
+            });
+        });
     }
 
     public function scopeAdvertising($query)
     {
-        return $query->where('key', 'sms_sender_number')->where('type', 'advertising');
+        return $query->where(function ($q) {
+            $q->where(function ($sub) {
+                $sub->where('key', 'sms_panel')->whereIn('type', ['advertising', 'normal-advertising', 'all'])->whereNotNull('number');
+            })->orWhere(function ($sub) {
+                $sub->where('key', 'sms_sender_number')->where('type', 'advertising');
+            });
+        });
     }
 
     public function isOtp(): bool

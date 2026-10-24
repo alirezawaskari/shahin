@@ -84,29 +84,6 @@
                         </select>
                     </div>
 
-                    <div class="col-12 col-md-6">
-                        <label class="form-label fw-bold">وضعیت تعهدنامه / قرارداد خط</label>
-                        @if(auth()->user()?->isSuperAdmin())
-                            <select name="contract_status" class="form-select">
-                                <option value="تایید شده" {{ old('contract_status', $senderNumber->contract_status) === 'تایید شده' ? 'selected' : '' }}>تایید شده (فعال برای ارسال)</option>
-                                <option value="در انتظار تایید تعهدنامه" {{ old('contract_status', $senderNumber->contract_status) === 'در انتظار تایید تعهدنامه' ? 'selected' : '' }}>در انتظار تایید تعهدنامه</option>
-                                <option value="رد شده / منقضی" {{ old('contract_status', $senderNumber->contract_status) === 'رد شده / منقضی' ? 'selected' : '' }}>رد شده / منقضی</option>
-                            </select>
-                            <small class="text-muted"><i class="fa fa-shield text-primary me-1"></i> کنترل انحصاری توسط مدیریت ارشد سامانه.</small>
-                        @else
-                            @php
-                                $isApproved = ($senderNumber->contract_status === 'تایید شده');
-                            @endphp
-                            <div class="p-2 bg-light rounded border d-flex align-items-center justify-content-between">
-                                <span class="badge {{ $isApproved ? 'bg-success' : 'bg-warning text-dark' }} px-3 py-2">
-                                    <i class="fa {{ $isApproved ? 'fa-check-circle' : 'fa-clock-o' }} me-1"></i>
-                                    {{ $senderNumber->contract_status ?: 'در انتظار تایید تعهدنامه' }}
-                                </span>
-                                <small class="text-muted"><i class="fa fa-lock me-1"></i> غیرقابل تغییر توسط کاربر (کنترل منحصراً توسط مدیریت ارشد)</small>
-                            </div>
-                        @endif
-                    </div>
-
                     <div class="col-12 col-md-6" id="businessAssignmentGroup">
                         <label class="form-label fw-bold">تخصیص اشتراکی به کسب‌وکارها</label>
                         <select name="business_ids[]" class="form-select" multiple size="5">

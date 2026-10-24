@@ -56,9 +56,15 @@ class SmsPanelService
         $deliverySettings = $data['delivery_settings'] ?? [];
         $businessId = $data['ghorfe_online_list_id'] ?? $business?->id;
 
+        $lineNumber = $connectionInfo['line_number']
+            ?? $sendSettings['default_sender']
+            ?? null;
+
         $payload = [
             'name' => $name,
             'slug' => $slug,
+            'number' => $lineNumber,
+            'sms_panel' => $name,
             'connection_info' => $connectionInfo,
             'send_settings' => $sendSettings,
             'receive_settings' => $receiveSettings,
@@ -109,6 +115,12 @@ class SmsPanelService
         if (isset($data['delivery_settings'])) {
             $currentVal['delivery_settings'] = $data['delivery_settings'];
         }
+
+        $lineNumber = $currentVal['connection_info']['line_number']
+            ?? $currentVal['send_settings']['default_sender']
+            ?? null;
+        $currentVal['number'] = $lineNumber;
+        $currentVal['sms_panel'] = $name;
 
         $businessId = array_key_exists('ghorfe_online_list_id', $data) ? $data['ghorfe_online_list_id'] : $panel->settingable_id;
 

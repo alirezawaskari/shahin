@@ -17,10 +17,22 @@ class SmsSenderNumberService
      */
     public function list(?GhorfeOnlineList $business = null, array $filters = []): LengthAwarePaginator
     {
+        $query = Setting::where(function ($q) {
+            $q->where('key', 'sms_sender_number')
+              ->orWhere(function ($p) {
+                  $p->where('key', 'sms_panel')->whereNotNull('number');
+              });
+        });
+
         if ($business) {
-            $query = $business->senderNumbers();
-        } else {
-            $query = Setting::where('key', 'sms_sender_number');
+            $query->where(function ($q) use ($business) {
+                $q->where(function ($sub) use ($business) {
+                    $sub->where('settingable_type', GhorfeOnlineList::class)
+                        ->where('settingable_id', $business->id);
+                })
+                ->orWhereNull('settingable_id')
+                ->orWhere('value', 'like', '%"business_ids":%' . $business->id . '%');
+            });
         }
 
         if (!empty($filters['type']) && $filters['type'] !== 'all') {
@@ -59,7 +71,7 @@ class SmsSenderNumberService
             return true; // SuperAdmin has access to all
         }
 
-        if ($senderNumber->settingable_id == $business->id) {
+        if (is_null($senderNumber->settingable_id) || $senderNumber->settingable_id == $business->id) {
             return true;
         }
 

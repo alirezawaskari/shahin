@@ -108,7 +108,7 @@
                                     {{ $panel->getConnectionSetting('base_url') ?: 'پیش‌فرض درگاه' }}
                                 </td>
                                 <td class="font-monospace small">
-                                    {{ $panel->getSendSetting('default_sender') ?: '—' }}
+                                    {{ $panel->number ?: ($panel->getSendSetting('default_sender') ?: '—') }}
                                 </td>
                                 <td class="small text-muted">
                                     {{ verta($panel->created_at)->format('Y/m/d') }}

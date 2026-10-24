@@ -487,7 +487,7 @@ class BulkSmsSendService
     /**
      * Dispatch single SMS to external gateway.
      */
-    public function dispatchToGateway(string $smsPanel, string $phone, string $message): void
+    public function dispatchToGateway(string $smsPanel, string $phone, string $message, ?string $senderNumber = null): void
     {
         if ($this->gatewayDispatcher !== null) {
             ($this->gatewayDispatcher)($smsPanel, $phone, $message);
@@ -504,10 +504,20 @@ class BulkSmsSendService
             return;
         }
 
-        if (strtolower($smsPanel) === 'neginsms') {
-            NeginSms::sendSingleSms($message, $phone, 'single');
+        $panel = Setting::where('key', 'sms_panel')
+            ->where(function ($q) use ($smsPanel) {
+                $q->where('name', $smsPanel)
+                    ->orWhere('slug', $smsPanel)
+                    ->orWhere('slug', Str::slug($smsPanel));
+            })->first();
+
+        $connectionInfo = $panel?->connection_info ?? [];
+        $driver = strtolower($connectionInfo['driver'] ?? $panel?->name ?? $smsPanel);
+
+        if ($driver === 'neginsms') {
+            NeginSms::sendSingleSms($message, $phone, 'single', $connectionInfo);
         } else {
-            IranSms::sendSingleSms($phone, $message);
+            IranSms::sendSingleSms($phone, $message, $connectionInfo, $senderNumber);
         }
     }
 
@@ -865,7 +875,8 @@ class BulkSmsSendService
                         $this->dispatchToGateway(
                             $senderNumber->sms_panel ?? 'IranSms',
                             $recipientPhone,
-                            $content
+                            $content,
+                            $senderNumber->number ?? null
                         );
 
                         $recipientRecord->update([

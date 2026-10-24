@@ -111,6 +111,7 @@ class SmsSettingsTest extends TestCase
             $table->increments('id');
             $table->unsignedInteger('user_id')->nullable();
             $table->unsignedBigInteger('ghorfe_online_list_id')->nullable();
+            $table->string('work_title')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });
@@ -139,8 +140,34 @@ class SmsSettingsTest extends TestCase
             $table->primary(['user_id', 'role_id', 'user_type']);
         });
 
+        Schema::create('category_permissions', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('name')->nullable();
+            $table->boolean('is_active')->default(true);
+            $table->integer('position')->default(0);
+            $table->timestamps();
+        });
+
+        Schema::create('employee_terms', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('title')->nullable();
+            $table->text('text')->nullable();
+            $table->timestamps();
+        });
+
+        Schema::create('contexts', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('key')->nullable();
+            $table->text('value')->nullable();
+            $table->softDeletes();
+            $table->timestamps();
+        });
+
         Schema::create('permissions', function (Blueprint $table) {
             $table->increments('id');
+            $table->unsignedInteger('cat_id')->nullable();
+            $table->boolean('isMenu')->default(false);
+            $table->integer('position')->default(0);
             $table->string('name')->nullable();
             $table->string('display_name')->nullable();
             $table->timestamps();
@@ -228,6 +255,11 @@ class SmsSettingsTest extends TestCase
             'active' => true,
         ]);
 
+        DB::table('employees')->insert([
+            'user_id' => $this->adminUser->id,
+            'work_title' => 'مدیر سیستم',
+        ]);
+
         $this->businessA = GhorfeOnlineList::create(['title' => 'فروشگاه آلفا', 'slug' => 'alfa']);
         $this->businessB = GhorfeOnlineList::create(['title' => 'فروشگاه بتا', 'slug' => 'beta']);
         $this->useStoredSettingsShape();
@@ -299,6 +331,87 @@ class SmsSettingsTest extends TestCase
         // 5. Delete
         $panelService->delete($panel);
         $this->assertDatabaseMissing('ghorfe_settings', ['id' => $panel->id]);
+    }
+
+    public function test_sms_panel_supports_driver_portal_code_and_gateway_credentials(): void
+    {
+        $panelService = app(SmsPanelService::class);
+
+        $neginPanel = $panelService->create([
+            'name' => 'NeginSms Panel',
+            'type' => 'normal-advertising',
+            'status' => 'active',
+            'connection_info' => [
+                'driver' => 'neginsms',
+                'portal_code' => '10002239',
+                'username' => 'negin_user',
+                'password' => 'negin_pass',
+                'line_number' => '10002239',
+                'base_url' => 'https://dev.homais.com/services/sms/index.asmx?wsdl',
+            ],
+            'description' => 'پنل وب‌سرویس نگین',
+        ]);
+
+        $this->assertEquals('neginsms', $neginPanel->getConnectionSetting('driver'));
+        $this->assertEquals('10002239', $neginPanel->getConnectionSetting('portal_code'));
+        $this->assertEquals('negin_user', $neginPanel->getConnectionSetting('username'));
+        $this->assertEquals('negin_pass', $neginPanel->getConnectionSetting('password'));
+        $this->assertEquals('10002239', $neginPanel->getConnectionSetting('line_number'));
+    }
+
+    public function test_sms_panels_seeder_renders_cleanly_in_edit_view(): void
+    {
+        $this->actingAs($this->adminUser);
+        $panelService = app(SmsPanelService::class);
+
+        $iranPanel = $panelService->create([
+            'name' => 'IranSms',
+            'type' => 'all',
+            'status' => 'active',
+            'connection_info' => [
+                'driver' => 'iransms',
+                'api_key' => 'cpCIuUbmtBhYFw41+kpYs0mSNw+mkN4aZBELwgUMN+A',
+                'line_number' => '10002622',
+                'base_url' => 'http://api.parsasms.com',
+            ],
+            'send_settings' => ['default_sender' => '10002622', 'timeout' => 15],
+            'description' => 'پنل ایران پیامک',
+        ]);
+
+        $neginPanel = $panelService->create([
+            'name' => 'NeginSms',
+            'type' => 'normal-advertising',
+            'status' => 'active',
+            'connection_info' => [
+                'driver' => 'neginsms',
+                'portal_code' => '10002239',
+                'username' => 'fr50568',
+                'password' => '12121364',
+                'line_number' => '10002239',
+                'base_url' => 'https://dev.homais.com/services/sms/index.asmx?wsdl',
+            ],
+            'send_settings' => ['default_sender' => '10002239', 'timeout' => 15],
+            'description' => 'پنل نگین پیامک',
+        ]);
+
+        $panelController = app(\App\Http\Controllers\Admin\SmsSettings\SmsPanelController::class);
+
+        // 1. IranSms edit view contains apiKey and linenumber
+        $viewIran = $panelController->edit($iranPanel);
+        $this->assertEquals('Admin.sms.settings.panels.edit', $viewIran->name());
+        $panelFromViewIran = $viewIran->getData()['panel'];
+        $this->assertEquals('cpCIuUbmtBhYFw41+kpYs0mSNw+mkN4aZBELwgUMN+A', $panelFromViewIran->getConnectionSetting('api_key'));
+        $this->assertEquals('10002622', $panelFromViewIran->getConnectionSetting('line_number'));
+        $this->assertEquals('iransms', $panelFromViewIran->getConnectionSetting('driver'));
+
+        // 2. NeginSms edit view contains portal_code, username, and password
+        $viewNegin = $panelController->edit($neginPanel);
+        $this->assertEquals('Admin.sms.settings.panels.edit', $viewNegin->name());
+        $panelFromViewNegin = $viewNegin->getData()['panel'];
+        $this->assertEquals('10002239', $panelFromViewNegin->getConnectionSetting('portal_code'));
+        $this->assertEquals('fr50568', $panelFromViewNegin->getConnectionSetting('username'));
+        $this->assertEquals('12121364', $panelFromViewNegin->getConnectionSetting('password'));
+        $this->assertEquals('neginsms', $panelFromViewNegin->getConnectionSetting('driver'));
     }
 
     // ==========================================
